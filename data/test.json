@@ -1,0 +1,83 @@
+{
+    "Account Security": {
+      "Buy devices with security-focused platforms": {
+        "Accuracy": [
+          "Accuracy Rating: Majority Useless",
+          "Median Risk Increase: NA"
+        ],
+        "Actionability": [
+          "Median Confidence: Very confident",
+          "Median Time Consuming: Slightly time consuming",
+          "Median Disruptive: Slightly disruptive",
+          "Median Difficulty: Not at all difficult"
+        ],
+        "Examples": [
+          "Even if your teen is careful about not divulging too much information, you may find their contact information innocently listed on a friend's site. Ask your teen to have the friend remove the information.",
+          "Maintain #privacy search for yourself with 2 search engines & request removal from sites if needed.",
+          "Remove personal and unwanted information from Google"
+        ],
+        "Literature Source": [
+            "Exploring Everyday Privacy Behaviors and Misclosures, Kelly Caine, 2009"
+          ],
+        "Source Documents": [
+            "httpswww.plannedparenthood.orgplanned-parenthood-northern-new-e.txt",
+            "httper.educause.edublogs201611january-2017-keep-whats-private-p.txt",
+            "httpswww.jackcola.org201306how-can-i-protect-myself-online.txt"
+          ]
+        },
+        "Not tell anyone your passwords, even IT": {
+          "Accuracy": [
+            "Accuracy Rating: Majority Useless",
+            "Median Risk Increase: NA"
+          ],
+          "Actionability": [
+            "Median Confidence: Very confident",
+            "Median Time Consuming: Slightly time consuming",
+            "Median Disruptive: Slightly disruptive",
+            "Median Difficulty: Not at all difficult"
+          ],
+          "Examples": [
+            "Even if your teen is careful about not divulging too much information, you may find their contact information innocently listed on a friend's site. Ask your teen to have the friend remove the information.",
+            "Maintain #privacy search for yourself with 2 search engines & request removal from sites if needed.",
+            "Remove personal and unwanted information from Google"
+          ],
+          "Literature Source": [
+              "Exploring Everyday Privacy Behaviors and Misclosures, Kelly Caine, 2009"
+            ],
+          "Source Documents": [
+              "httpswww.plannedparenthood.orgplanned-parenthood-northern-new-e.txt",
+              "httper.educause.edublogs201611january-2017-keep-whats-private-p.txt",
+              "httpswww.jackcola.org201306how-can-i-protect-myself-online.txt"
+            ]
+          }
+      },
+      
+      "Antivirus": {
+      "Not open unnecessary attachments": {
+        "Accuracy": [
+          "Accuracy Rating: Majority Useless",
+          "Median Risk Increase: NA"
+        ],
+        "Actionability": [
+          "Median Confidence: Very confident",
+          "Median Time Consuming: Slightly time consuming",
+          "Median Disruptive: Slightly disruptive",
+          "Median Difficulty: Not at all difficult"
+        ],
+        "Examples": [
+          "Even if your teen is careful about not divulging too much information, you may find their contact information innocently listed on a friend's site. Ask your teen to have the friend remove the information.",
+          "Maintain #privacy search for yourself with 2 search engines & request removal from sites if needed.",
+          "Remove personal and unwanted information from Google"
+        ],
+        "Literature Source": [
+            "Exploring Everyday Privacy Behaviors and Misclosures, Kelly Caine, 2009"
+        ],
+        "Source Documents": [
+            "httpswww.plannedparenthood.orgplanned-parenthood-northern-new-e.txt",
+            "httper.educause.edublogs201611january-2017-keep-whats-private-p.txt",
+            "httpswww.jackcola.org201306how-can-i-protect-myself-online.txt"
+            ]
+        }
+    }
+}
+  
