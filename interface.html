@@ -2,13 +2,30 @@
 <html>
 
 <head>
-  <title>A2: Implementing Visulaizations in D3.js </title>
+  <title>Displaying Security Advice</title>
   <script src="./js/index.js"></script>
   <link rel="stylesheet" type="text/css" href="./css/security.css">
+  <script src="./static/js/d3.js"></script>
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 </head>
-
 <body onload="processData();">
-
+  <svg class="vis" width="700" height="500"></svg>
+  <hr>
+  <div class="grid-container" id="ui-div"> 
+    <div class="grid-item" id="cat-select"> 
+      Select Category of Security: <select id="category"></select> 
+    </div>
+    <div class="grid-item" id="rankType-select"> 
+      Select Rankings Type:<select id="rankType"></select>
+    </div>
+    <div class="grid-item" id="rankView-select">
+      <label for="amount"> Select Rankings Range:</label>
+      <input type="range" class="slider" id="rankRange">
+    </div>
+    <div class="grid-item" id="sort-select">
+      <input type="checkbox" id="sort"> Toggle sort
+    </div>
+</div>
 </body>
 
 </html>
