@@ -1,3 +1,30 @@
+/** DROPDOWN & CHECKBOX LISTENERS FOR VISUALIZATIONS */
+var category = document.getElementById("category").value;
+var sorted = document.getElementById("#sort").value;
+var range = document.getElementById("#rankRange")
+var rankType = document.getElementById("#rankType")
+/* variables and data that is important to have */
+var margins = { tp: 50, btm: 50, lft: 100, rt: 80 };
+var width = 700;
+var height = 500;
+var jsonData = processData();
+
+category.onchange = () => {
+  renderVisualization(jsonData, category, sorted, range, rankType);
+};
+
+sorted.onchange = () => {
+  renderVisualization(jsonData, category, sorted, range, rankType);
+};
+
+range.onchange = () => {
+  renderVisualization(jsonData, category, sorted, range, rankType);
+};
+
+rankType.onchange = () => {
+  renderVisualization(jsonData, category, sorted, range, rankType);
+};
+
 //this function runs on startup of the HTML page 
 function processData() {
   getJsonData()
@@ -11,7 +38,6 @@ function processData() {
     return jsonData;
   })
   .then(jsonData => {
-    console.log(jsonData);
     renderVisualization(jsonData);
   })
   .catch(e => console.log(e));
@@ -90,31 +116,14 @@ function parseHTML(advice, data) {
   return rating;
 }
 
-/* variables and data that is important to have */
-var margins = { tp: 50, btm: 50, lft: 100, rt: 80 };
-var width = 700;
-var height = 500;
 
-function renderVisualization(jsonData) {
-  /** FOR ALL VISUALIZATION STUFF */
-  d3.select("#vis").html("");
+function renderVisualization(jsonData, category, sorted, range, rankType) {
 
-  var catSet = [];
-  for (let prop in jsonData) {
-    catSet.push(prop);
-  }
-
-  var rankSet = ["Both", "Expert Ranking", "User Ranking"];
-
-  var categories = d3.select("#category").selectAll("option")
-      .data(catSet)
-      .enter().append("option")
-      .text(d => d);
-
-  var rankType = d3.select("#rankType").selectAll("option")
-  .data(rankSet)
-  .enter().append("option")
-  .text(d => d);
+  console.log(jsonData);
+  let svg = d3.select("svg");
+  
+  svg.selectAll("*").remove();
+  
   
   /** Plot Axes */
   var xBand = d3.scaleBand()
@@ -133,58 +142,40 @@ function renderVisualization(jsonData) {
   /** END of Plot Axes */
 
   
-  /** updates based on info given */
-  update(d3.select("#category").property("value"), 0);
+  // /** updates based on info given */
+  // update(d3.select("#category").property("value"), 0);
 
-  /** update purposes on svg */
-  function update(input, speed) {
+  // /** update purposes on svg */
+  // function update(input, speed) {
     
-    /** handling UI changes */
-    var attr = d3.select("#category").property("value");
-    var data = jsonData[attr];
-    console.log(data);
+  //   /** handling UI changes */
+  //   var attr = d3.select("#category").property("value");
+  //   var data = jsonData[attr];
 
-    /** USE THIS TO GET RANKING
-     * if both, show both expert and user
-     * if user, show user
-     * if expert, show expert
-     */
-    var viewInput = d3.select('#rankType').property("value");
-    // TODO: check if both, this is where the double bars will come in
-    console.log(viewInput)
+  //   /** USE THIS TO GET RANKING
+  //    * if both, show both expert and user
+  //    * if user, show user
+  //    * if expert, show expert
+  //    */
+  //   var viewInput = d3.select('#rankType').property("value");
+  //   // TODO: check if both, this is where the double bars will come in
+  //   // console.log(viewInput)
     
-    /** TOGGLE SORT for VIS */
-    var adviceSet = [];
-    for (let prop in data) {
-      adviceSet.push(prop);
-    }
-   /*if (viewInput !== "Both") {
-      data.sort(d3.select("#sort").property("checked")
-            ? (a, b) => b.viewInput - a.viewInput
-            : (a, b) => adviceSet.indexOf(a[name]) - adviceSet.indexOf(b[name]))
-    }*/
-    /** TODO: d3 goes here!!! */
+  //   /** TOGGLE SORT for VIS */
+  //   var adviceSet = [];
+  //   for (let prop in data) {
+  //     adviceSet.push(prop);
+  //   }
+  //  /*if (viewInput !== "Both") {
+  //     data.sort(d3.select("#sort").property("checked")
+  //           ? (a, b) => b.viewInput - a.viewInput
+  //           : (a, b) => adviceSet.indexOf(a[name]) - adviceSet.indexOf(b[name]))
+  //   }*/
+  //   /** TODO: d3 goes here!!! */
     
 
   }
   
-  /** UPDATES VISUALIZATION EVERY TIME UI CHANGES */
-  renderVisualization.update = update;
-
-  /** DROPDOWN & CHECKBOX LISTENERS FOR VISUALIZATIONS */
-  var selectCat = d3.select("#category")
-  .on("change", function () {
-      update(this.value, 750)
-  })
-
-  var sortCheck = d3.select("#sort")
-  .on("click", function () {
-      update(selectCat.property("value"), 750)
-  })
-
-  var select = d3.select("#rankRange")
-  .on("change", function () {
-      update(this.value, 750)
-  })
+  
 }
 
