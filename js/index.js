@@ -11,7 +11,6 @@ function processData() {
     return jsonData;
   })
   .then(jsonData => {
-    console.log(jsonData);
     renderVisualization(jsonData);
   })
   .catch(e => console.log(e));
@@ -91,13 +90,14 @@ function parseHTML(advice, data) {
 }
 
 /* variables and data that is important to have */
-var margins = { tp: 50, btm: 50, lft: 100, rt: 80 };
+var margins = { top: 50, bottom: 50, left: 100, right: 80 };
 var width = 700;
 var height = 500;
 
 function renderVisualization(jsonData) {
   /** FOR ALL VISUALIZATION STUFF */
-  d3.select("#vis").html("");
+  let svg = d3.select("svg");
+  svg.html("");
 
   var catSet = [];
   for (let prop in jsonData) {
@@ -117,19 +117,21 @@ function renderVisualization(jsonData) {
   .text(d => d);
   
   /** Plot Axes */
-  var xBand = d3.scaleBand()
-  .range([margins.lft, width])
+  var xScale = d3.scaleBand()
+  .range([margins.left, width])
   .padding(0.1);
 
-  var yBand = d3.scaleLinear()
-  .rangeRound([height - 50 - margins.btm, margins.tp]);
+  var yScale = d3.scaleLinear()
+  .rangeRound([height - 50 - margins.bottom, margins.top]);
 
-  d3.select("#vis").append("g").attr("transform", `translate(0,${height - 50 - margins.btm})`)
-  .attr("class", "xAxis")
-
-  d3.select("#vis").append("g") 
-  .attr("transform", `translate(${margins.lft},0)`)
-  .attr("class", "yAxis")
+  svg.append("g")
+      .attr("id", "xAxis")
+      .attr("transform", `translate(0, ${svg.attr("height") - margins.bottom})`)
+      .call(d3.axisBottom(xScale));
+  svg.append("g")
+      .attr("id", "yAxis")
+      .attr("transform", `translate(${margins.left}, ${margins.top})`)
+      .call(d3.axisLeft(yScale));
   /** END of Plot Axes */
 
   
@@ -142,7 +144,6 @@ function renderVisualization(jsonData) {
     /** handling UI changes */
     var attr = d3.select("#category").property("value");
     var data = jsonData[attr];
-    console.log(data);
 
     /** USE THIS TO GET RANKING
      * if both, show both expert and user
@@ -151,20 +152,27 @@ function renderVisualization(jsonData) {
      */
     var viewInput = d3.select('#rankType').property("value");
     // TODO: check if both, this is where the double bars will come in
-    console.log(viewInput)
     
     /** TOGGLE SORT for VIS */
-    var adviceSet = [];
-    for (let prop in data) {
-      adviceSet.push(prop);
-    }
+    var adviceSet = Object.keys(data);
    /*if (viewInput !== "Both") {
       data.sort(d3.select("#sort").property("checked")
             ? (a, b) => b.viewInput - a.viewInput
             : (a, b) => adviceSet.indexOf(a[name]) - adviceSet.indexOf(b[name]))
     }*/
     /** TODO: d3 goes here!!! */
-    
+    let minY = d3.min(adviceSet.map(advice => data[advice]["User Ranking"]));
+    svg.selectAll("rect")
+        .data(slice)
+        .enter()
+        .append("rect")
+        .attr("x", entry => xScale(entry["name"]))
+        .attr("y", entry => yScale(entry["User Ranking"]))
+        .attr("width", xScale.bandwidth())
+        .attr("height", entry => {
+          let number = entry["User Ranking"];
+          return yScale(minY) - yScale(number);
+        })
 
   }
   
@@ -172,19 +180,21 @@ function renderVisualization(jsonData) {
   renderVisualization.update = update;
 
   /** DROPDOWN & CHECKBOX LISTENERS FOR VISUALIZATIONS */
-  var selectCat = d3.select("#category")
-  .on("change", function () {
-      update(this.value, 750)
-  })
-
-  var sortCheck = d3.select("#sort")
-  .on("click", function () {
-      update(selectCat.property("value"), 750)
-  })
-
-  var select = d3.select("#rankRange")
-  .on("change", function () {
-      update(this.value, 750)
-  })
+  d3.select("#category")
+    .on("change", function () {
+        update(this.value, 750)
+    });
+  d3.select("#sort")
+    .on("click", function () {
+        update(selectCat.property("value"), 750)
+    });
+  d3.select("#rankType")
+      .on("change", function () {
+        update(this.value, 750)
+      });
+  d3.select("#rankRange")
+    .on("change", function () {
+        update(this.value, 750)
+    });
 }
 
