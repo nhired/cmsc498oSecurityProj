@@ -1,3 +1,46 @@
+/* variables and data that is important to have */
+var data;
+var svg = d3.select("svg")
+var categoryDropdown = document.getElementById("category");
+var rankTypeDropdown = document.getElementById("rankType")
+var slider = document.getElementById("rankView");
+var sortCheckbox = document.getElementById("sort");
+var margins = { top: 50, bottom: 50, left: 100, right: 80 };
+var width = 700;
+var height = 500;
+
+categoryDropdown.onchange = () => {
+  let selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
+  let selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
+  let sliderValue = slider.value;
+  let sorted = sortCheckbox.checked;
+  renderVisualization(data, selectedCategory, selectedRankType, sliderValue, sorted);
+};
+
+rankTypeDropdown.onchange = () => {
+  let selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
+  let selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
+  let sliderValue = slider.value;
+  let sorted = sortCheckbox.checked;
+  renderVisualization(data, selectedCategory, selectedRankType, sliderValue, sorted);
+};
+
+slider.oninput = () => {
+  let selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
+  let selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
+  let sliderValue = slider.value;
+  let sorted = sortCheckbox.checked;
+  renderVisualization(data, selectedCategory, selectedRankType, sliderValue, sorted);
+}
+
+sortCheckbox.onchange = () => {
+  let selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
+  let selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
+  let sliderValue = slider.value;
+  let sorted = sortCheckbox.checked;
+  renderVisualization(data, selectedCategory, selectedRankType, sliderValue, sorted);
+}
+
 //this function runs on startup of the HTML page 
 function processData() {
   getJsonData()
@@ -8,9 +51,11 @@ function processData() {
 
     insertRankings(jsonData, userData, "user");
     insertRankings(jsonData, expertData, "expert");
+    data = jsonData;
     return jsonData;
   })
   .then(jsonData => {
+    console.log(jsonData)
     renderVisualization(jsonData);
   })
   .catch(e => console.log(e));
@@ -27,7 +72,6 @@ function getJsonData() {
 
 
 function insertRankings(jsonData, data, boolean) {
-
   for( let prop in jsonData ){
     var securityField = jsonData[prop];
 
@@ -89,33 +133,12 @@ function parseHTML(advice, data) {
   return rating;
 }
 
-/* variables and data that is important to have */
-var margins = { top: 50, bottom: 50, left: 100, right: 80 };
-var width = 700;
-var height = 500;
 
-function renderVisualization(jsonData) {
+
+function renderVisualization(jsonData, category, rankType, sorted, rankRange) {
   /** FOR ALL VISUALIZATION STUFF */
-  let svg = d3.select("svg");
-  svg.html("");
+  svg.selectAll("*").remove();
 
-  var catSet = [];
-  for (let prop in jsonData) {
-    catSet.push(prop);
-  }
-
-  var rankSet = ["Both", "Expert Ranking", "User Ranking"];
-
-  var categories = d3.select("#category").selectAll("option")
-      .data(catSet)
-      .enter().append("option")
-      .text(d => d);
-
-  var rankType = d3.select("#rankType").selectAll("option")
-  .data(rankSet)
-  .enter().append("option")
-  .text(d => d);
-  
   /** Plot Axes */
   var xScale = d3.scaleBand()
   .range([margins.left, width])
@@ -140,7 +163,7 @@ function renderVisualization(jsonData) {
 
   /** update purposes on svg */
   function update(input, speed) {
-    
+    console.log("GOT TO UPDATE")
     /** handling UI changes */
     var attr = d3.select("#category").property("value");
     var data = jsonData[attr];
@@ -175,26 +198,5 @@ function renderVisualization(jsonData) {
         })
 
   }
-  
-  /** UPDATES VISUALIZATION EVERY TIME UI CHANGES */
-  renderVisualization.update = update;
-
-  /** DROPDOWN & CHECKBOX LISTENERS FOR VISUALIZATIONS */
-  d3.select("#category")
-    .on("change", function () {
-        update(this.value, 750)
-    });
-  d3.select("#sort")
-    .on("click", function () {
-        update(selectCat.property("value"), 750)
-    });
-  d3.select("#rankType")
-      .on("change", function () {
-        update(this.value, 750)
-      });
-  d3.select("#rankRange")
-    .on("change", function () {
-        update(this.value, 750)
-    });
 }
 
