@@ -10,15 +10,14 @@ const height = 500;
 
 let data, selectedCategory, selectedRankType, sliderValue, sorted;
 
-d3.json("data/processedData.json")
-    .then((json) => {
-        data = json;
+window.onload = function() {
+        data = processedJson;
         selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
         selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
         sliderValue = slider.value;
         sorted = sortCheckbox.checked;
         renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
-    })
+    }
 
 categoryDropdown.onchange = () => {
   selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;

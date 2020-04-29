@@ -1,4 +1,4 @@
-{
+const processedJson = {
   "Account Security":{
     "ask people to remove your personal information and photos":{
       "Accuracy":[
