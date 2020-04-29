@@ -271,8 +271,6 @@
       "name":"be suspicious of unusual email if grammar in an email is not good",
       "Expert Ranking":"3.17"
     },
-    "be suspicious of unusual email if something is sent to you in all uppercase [literature only, Google qualitative analysis of CERT]":null,
-    "be suspicious of unusual email if the formatting of a message is unusual [literature only, Google qualitative analysis of CERT]":null,
     "be suspicious of unusual email of things even from known people":{
       "Accuracy":[
         "Accuracy Rating: Majority Accurate",
@@ -620,7 +618,6 @@
       "name":"disable message and image previews",
       "Expert Ranking":"3.91"
     },
-    "don't send replies with usernames/passwords [literature only, Google qualitative analysis of CERT]":null,
     "double check email addresses":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -690,7 +687,6 @@
       "name":"encrypt your email",
       "Expert Ranking":"3.69"
     },
-    "have a compromise plan for your accounts [literature only, Google qualitative analysis of CERT]":null,
     "log out of accounts":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -2513,7 +2509,6 @@
       "name":"use antivirus",
       "Expert Ranking":"3.27"
     },
-    "use multiple antivirus softwares [literature only, Google qualitative analysis of CERT]":null,
     "whitelist executable directories to prevent malicious binaries":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -3068,7 +3063,6 @@
       "name":"disable third-party cookies",
       "Expert Ranking":"4.05"
     },
-    "don't accept self-signed certificates [literature only, Google qualitative analysis of CERT]":null,
     "don't trust sites with certificate warnings":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -4180,7 +4174,6 @@
       "name":"use security extensions",
       "Expert Ranking":"3.8"
     },
-    "use url unshorteners [literature only, Google qualitative analysis of CERT]":null,
     "verify file signatures":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -4422,7 +4415,6 @@
       "name":"encrypt select groups of files",
       "Expert Ranking":"3.79"
     },
-    "encrypt your backups [literature only, Google qualitative analysis of CERT]":null,
     "encrypt your device data":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -4890,8 +4882,6 @@
       "name":"bring proof-of-purchase for computer equipment when travelling",
       "Expert Ranking":"4.86"
     },
-    "buy and use products/devices from reputable sources [literature only, Understanding end-user cyberhygiene in the context of the Internet of Things: A Delphi-study with experts, Blythe et al., 2017]":null,
-    "buy devices that can work without the cloud [literature only, Understanding end-user cyberhygiene in the context of the Internet of Things: A Delphi-study with experts, Blythe et al., 2017]":null,
     "buy devices with passwords, preferably passwords that you can change":{
       "Accuracy":[
         "Accuracy Rating: Majority Accurate",
@@ -5370,7 +5360,6 @@
       "name":"lock your smartphone with passcode or touch id",
       "Expert Ranking":"2.62"
     },
-    "minimize the # of different iot device providers you buy from [literature only, Understanding end-user cyberhygiene in the context of the Internet of Things: A Delphi-study with experts, Blythe et al., 2017]":null,
     "not jailbreak devices":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -5629,7 +5618,6 @@
       "name":"securely wipe devices before disposal, where possible",
       "Expert Ranking":"4.28"
     },
-    "send devices to a secure disposal facility [literature only, Understanding end-user cyberhygiene in the context of the Internet of Things: A Delphi-study with experts, Blythe et al., 2017]":null,
     "set up auto-lock timers for your smartphone":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -6265,7 +6253,6 @@
       "name":"only reveal financial information to reputable actors",
       "Expert Ranking":"3.31"
     },
-    "type banking links manually [literature only, Google qualitative analysis of CERT]":null,
     "use electronic bank statements":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -6645,7 +6632,6 @@
       "name":"be suspicious of popups and requests, even from known sources",
       "Expert Ranking":"3.84"
     },
-    "be suspicious of unknown people [literature only, Google qualitative analysis of CERT]":null,
     "block unwanted users":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -8088,7 +8074,6 @@
       "name":"disable sharing on peer-to-peer apps",
       "Expert Ranking":"4.24"
     },
-    "disable unnecessary bluetooth features [literature only, \"...no one can hack my mind\": Comparing Expert and Non-Expert Security Practices, Ion et al., SOUPS 2015]":null,
     "encrypt your wifi":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -8502,7 +8487,6 @@
       "name":"turn off bluetooth",
       "Expert Ranking":"3.62"
     },
-    "turn off near field communication [literature only, Google qualitative analysis of CERT]":null,
     "turn off remote access/management features":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -9054,7 +9038,6 @@
       "name":"feel comfortable making weak passwords for sites thar don't keep personal info",
       "Expert Ranking":"4.69"
     },
-    "have 3 unique passwords [literature only, Google qualitative analysis of CERT]":null,
     "keep passwords safe if written down":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -9957,7 +9940,6 @@
       "name":"use a password that's different from your username",
       "Expert Ranking":"3.58"
     },
-    "use a unique password for your primary email [literature only, Google qualitative analysis of CERT]":null,
     "use both upper and lower case in passwords":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -10609,7 +10591,6 @@
     }
   },
   "Privacy":{
-    "avoid using systems with privacy-invasive features [literature only, Exploring Everyday Privacy Behaviors and Misclosures, Kelly Caine, 2009]":null,
     "be wary of proxy servers":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",
@@ -11038,7 +11019,6 @@
       "name":"remain anonymous online",
       "Expert Ranking":"3.72"
     },
-    "use a separate account to install software [literature only, Google qualitative analysis of CERT]":null,
     "use airplane mode in stores with retail tracking":{
       "Accuracy":[
         "Accuracy Rating: All Accurate",

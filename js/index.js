@@ -1,5 +1,4 @@
 /* variables and data that is important to have */
-let data;
 const svg = d3.select("svg");
 const categoryDropdown = document.getElementById("category");
 const rankTypeDropdown = document.getElementById("rankType");
@@ -9,46 +8,36 @@ const margins = { top: 50, bottom: 50, left: 100, right: 80 };
 const width = 700;
 const height = 500;
 
+let data, selectedCategory, selectedRankType, sliderValue, sorted;
+
 d3.json("data/processedData.json")
     .then((json) => {
         data = json;
-        let selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
-        let selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
-        let sliderValue = slider.value;
-        let sorted = sortCheckbox.checked;
+        selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
+        selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
+        sliderValue = slider.value;
+        sorted = sortCheckbox.checked;
         renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
     })
 
 categoryDropdown.onchange = () => {
-  let selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
-  let selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
-  let sliderValue = slider.value;
-  let sorted = sortCheckbox.checked;
-  renderVisualization(data, selectedCategory, selectedRankType, sliderValue, sorted);
+  selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
+  renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
 };
 
 rankTypeDropdown.onchange = () => {
-  let selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
-  let selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
-  let sliderValue = slider.value;
-  let sorted = sortCheckbox.checked;
-  renderVisualization(data, selectedCategory, selectedRankType, sliderValue, sorted);
+  selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
+  renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
 };
 
 slider.oninput = () => {
-  let selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
-  let selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
-  let sliderValue = slider.value;
-  let sorted = sortCheckbox.checked;
-  renderVisualization(data, selectedCategory, selectedRankType, sliderValue, sorted);
+   sliderValue = slider.value;
+  renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
 }
 
 sortCheckbox.onchange = () => {
-  let selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
-  let selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
-  let sliderValue = slider.value;
-  let sorted = sortCheckbox.checked;
-  renderVisualization(data, selectedCategory, selectedRankType, sliderValue, sorted);
+  sorted = sortCheckbox.checked;
+  renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
 }
 
 // //this function runs on startup of the HTML page
@@ -149,18 +138,15 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
   /** FOR ALL VISUALIZATION STUFF */
   svg.selectAll("*").remove();
   let advice = Object.entries(jsonData).map((entry) => entry[0]);
-  let rankings = Object.entries(jsonData).map((entry) => {
-    console.log(entry[1][rankType]);
-    entry[1][rankType];
-  });
-  console.log(rankings);
+  let rankings = Object.entries(jsonData).map((entry) => entry[1][rankType]);
   /** Plot Axes */
-  var xScale = d3.scaleBand()
+  let xScale = d3.scaleBand()
       .domain(advice)
       .range([margins.left, width])
       .padding(0.1);
-
-  var yScale = d3.scaleLinear()
+  console.log(d3.max(rankings));
+  let yScale = d3.scaleLinear()
+      .domain([d3.min(rankings), d3.max(rankings)])
   .rangeRound([height - 50 - margins.bottom, margins.top]);
 
   svg.append("g")
