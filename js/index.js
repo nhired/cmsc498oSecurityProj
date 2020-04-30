@@ -6,7 +6,7 @@ const slider = document.getElementById("rankRange");
 const sortCheckbox = document.getElementById("sort");
 const sliderMax = document.getElementById("sliderMax");
 const margins = { top: 50, bottom: 50, left: 100, right: 80 };
-const width = 700;
+const width = 1000;
 const height = 500;
 
 let data, selectedCategory, selectedRankType, sliderValue, sorted;
