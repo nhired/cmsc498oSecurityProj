@@ -149,7 +149,7 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
         .padding(0.1);
     let yScale = d3.scaleLinear()
         .domain([d3.min(rankings), d3.max(rankings)])
-        .range([height - 50 - margins.bottom, margins.top]);
+        .range([height - margins.bottom, margins.top]);
 
     svg.append("g")
         .attr("id", "xAxis")
@@ -157,7 +157,7 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
         .call(d3.axisBottom(xScale));
     svg.append("g")
         .attr("id", "yAxis")
-        .attr("transform", `translate(${margins.left}, ${margins.top})`)
+        .attr("transform", `translate(${margins.left}, 0)`)
         .call(d3.axisLeft(yScale));
     /** END of Plot Axes */
 
