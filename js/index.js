@@ -142,6 +142,8 @@ sortCheckbox.onchange = () => {
 function renderVisualization(jsonData, rankType, rankRange, sorted) {
     /** FOR ALL VISUALIZATION STUFF */
     svg.selectAll("*").remove();
+
+    let minBuffer = 0.05
     let dataArray = Object.entries(jsonData);
     dataArray = dataArray.slice(0, ++rankRange)
     if (sorted) {
@@ -166,7 +168,7 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
         .range([margins.left, width])
         .padding(0.1);
     let yScale = d3.scaleLinear()
-        .domain([d3.min(rankings), d3.max(rankings)])
+        .domain([d3.min(rankings) - minBuffer, d3.max(rankings)])
         .range([height - margins.bottom, margins.top]);
 
     svg.append("g")
@@ -189,7 +191,7 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
     svg.call(tip);
 
     // Create rectangles
-    let minY = d3.min(rankings);
+    let minY = d3.min(rankings) - minBuffer;
     d3.select("svg").selectAll("rect")
         .data(dataArray)
         .enter()
