@@ -20,23 +20,23 @@ window.onload = function() {
 }
 
 categoryDropdown.onchange = () => {
-  selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
-  renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
+    selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
+    renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
 };
 
 rankTypeDropdown.onchange = () => {
-  selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
-  renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
+    selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
+    renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
 };
 
 slider.oninput = () => {
-   sliderValue = slider.value;
-  renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
+    sliderValue = slider.value;
+    renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
 }
 
 sortCheckbox.onchange = () => {
-  sorted = sortCheckbox.checked;
-  renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
+    sorted = sortCheckbox.checked;
+    renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
 }
 
 // //this function runs on startup of the HTML page
@@ -134,67 +134,66 @@ sortCheckbox.onchange = () => {
 
 
 function renderVisualization(jsonData, rankType, rankRange, sorted) {
-  /** FOR ALL VISUALIZATION STUFF */
-  svg.selectAll("*").remove();
-  let advice = Object.entries(jsonData).map((entry) => entry[0]);
-  let rankings = Object.entries(jsonData).map((entry) => entry[1][rankType]);
-  /** Plot Axes */
-  let xScale = d3.scaleBand()
-      .domain(advice)
-      .range([margins.left, width])
-      .padding(0.1);
-  let yScale = d3.scaleLinear()
-      .domain([d3.min(rankings), d3.max(rankings)])
-  .rangeRound([height - 50 - margins.bottom, margins.top]);
+    /** FOR ALL VISUALIZATION STUFF */
+    svg.selectAll("*").remove();
+    let dataArray = Object.entries(jsonData);
+    let advice = dataArray.map((entry) => entry[0]);
+    let rankings = dataArray.map((entry) => entry[1][rankType]);
+    /** Plot Axes */
+    let xScale = d3.scaleBand()
+        .domain(advice)
+        .range([margins.left, width])
+        .padding(0.1);
+    let yScale = d3.scaleLinear()
+        .domain([d3.min(rankings), d3.max(rankings)])
+        .range([height - 50 - margins.bottom, margins.top]);
 
-  svg.append("g")
-      .attr("id", "xAxis")
-      .attr("transform", `translate(0, ${svg.attr("height") - margins.bottom})`)
-      .call(d3.axisBottom(xScale));
-  svg.append("g")
-      .attr("id", "yAxis")
-      .attr("transform", `translate(${margins.left}, ${margins.top})`)
-      .call(d3.axisLeft(yScale));
-  /** END of Plot Axes */
-  let minY = d3.min(rankings);
-    svg.selectAll("rect")
-        .data(jsonData)
+    svg.append("g")
+        .attr("id", "xAxis")
+        .attr("transform", `translate(0, ${svg.attr("height") - margins.bottom})`)
+        .call(d3.axisBottom(xScale));
+    svg.append("g")
+        .attr("id", "yAxis")
+        .attr("transform", `translate(${margins.left}, ${margins.top})`)
+        .call(d3.axisLeft(yScale));
+    /** END of Plot Axes */
+
+    // Create rectangles
+    let minY = d3.min(rankings);
+    d3.select("svg").selectAll("rect")
+        .data(dataArray)
         .enter()
         .append("rect")
-        .attr("x", entry => {
-            console.log(xScale(entry["name"]));
-            console.log("here");
-            return xScale(entry["name"]);
-        })
-        .attr("y", entry => yScale(entry[rankType]))
+        .attr("x", entry => xScale(entry[0]))
+        .attr("y", entry => yScale(entry[1][rankType]))
         .attr("width", xScale.bandwidth())
         .attr("height", entry => {
-            let number = entry[rankType];
+            let number = entry[1][rankType];
             return yScale(minY) - yScale(number);
-        })
+        });
 
-  /** update purposes on svg */
-  // function update(input, speed) {
-  //   /** handling UI changes */
-  //   var attr = d3.select("#category").property("value");
-  //   var data = jsonData[attr];
-  //
-  //   /** USE THIS TO GET RANKING
-  //    * if both, show both expert and user
-  //    * if user, show user
-  //    * if expert, show expert
-  //    */
-  //   var viewInput = d3.select('#rankType').property("value");
-  //   // TODO: check if both, this is where the double bars will come in
-  //
-  //   /** TOGGLE SORT for VIS */
-  //   var adviceSet = Object.keys(data);
-  //  /*if (viewInput !== "Both") {
-  //     data.sort(d3.select("#sort").property("checked")
-  //           ? (a, b) => b.viewInput - a.viewInput
-  //           : (a, b) => adviceSet.indexOf(a[name]) - adviceSet.indexOf(b[name]))
-  //   }*/
-  //   /** TODO: d3 goes here!!! */
-  // }
+    /** update purposes on svg */
+    // function update(input, speed) {
+    //   /** handling UI changes */
+    //   var attr = d3.select("#category").property("value");
+    //   var data = jsonData[attr];
+    //
+    //   /** USE THIS TO GET RANKING
+    //    * if both, show both expert and user
+    //    * if user, show user
+    //    * if expert, show expert
+    //    */
+    //   var viewInput = d3.select('#rankType').property("value");
+    //   // TODO: check if both, this is where the double bars will come in
+    //
+    //   /** TOGGLE SORT for VIS */
+    //   var adviceSet = Object.keys(data);
+    //  /*if (viewInput !== "Both") {
+    //     data.sort(d3.select("#sort").property("checked")
+    //           ? (a, b) => b.viewInput - a.viewInput
+    //           : (a, b) => adviceSet.indexOf(a[name]) - adviceSet.indexOf(b[name]))
+    //   }*/
+    //   /** TODO: d3 goes here!!! */
+    // }
 }
 
