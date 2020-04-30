@@ -144,6 +144,19 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
     svg.selectAll("*").remove();
     let dataArray = Object.entries(jsonData);
     dataArray = dataArray.slice(0, ++rankRange)
+    if (sorted) {
+      dataArray.sort(function(a, b) {
+        let rankA = a[1][rankType];
+        let rankB = b[1][rankType];
+        if (rankA < rankB) {
+            return -1;
+        } else if (rankA > rankB) {
+            return 1;
+        } else {
+            return 0;
+        }
+      });
+    }
     //console.log(dataArray.length)
     let advice = dataArray.map((entry) => entry[0]);
     let rankings = dataArray.map((entry) => entry[1][rankType]);
