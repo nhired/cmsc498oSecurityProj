@@ -159,12 +159,21 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
     svg.append("g")
         .attr("id", "xAxis")
         .attr("transform", `translate(0, ${svg.attr("height") - margins.bottom})`)
-        .call(d3.axisBottom(xScale));
+        .call(d3.axisBottom(xScale))
+        .selectAll("text")
+        .remove();
     svg.append("g")
         .attr("id", "yAxis")
         .attr("transform", `translate(${margins.left}, 0)`)
         .call(d3.axisLeft(yScale));
     /** END of Plot Axes */
+
+    let tip = d3.tip()
+        .attr('class', 'd3-tip')
+        .offset([-10, 0])
+        .html((data) => data[0]);
+
+    svg.call(tip);
 
     // Create rectangles
     let minY = d3.min(rankings);
@@ -178,7 +187,9 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
         .attr("height", entry => {
             let number = entry[1][rankType];
             return yScale(minY) - yScale(number);
-        });
+        })
+        .on('mouseover', tip.show)
+        .on('mouseout', tip.hide);
 
     /** update purposes on svg */
     // function update(input, speed) {
