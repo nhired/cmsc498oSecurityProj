@@ -2,7 +2,7 @@
 const svg = d3.select("svg");
 const categoryDropdown = document.getElementById("category");
 const rankTypeDropdown = document.getElementById("rankType");
-const slider = document.getElementById("rankView");
+const slider = document.getElementById("rankRange");
 const sortCheckbox = document.getElementById("sort");
 const sliderMax = document.getElementById("sliderMax");
 const margins = { top: 50, bottom: 50, left: 100, right: 80 };
@@ -23,6 +23,9 @@ window.onload = function() {
 categoryDropdown.onchange = () => {
     selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
     sliderMax.innerHTML = Object.entries(data[selectedCategory]).length
+    slider.max = Object.entries(data[selectedCategory]).length
+    slider.value = Object.entries(data[selectedCategory]).length
+    sliderValue = slider.value;
     renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
 };
 
@@ -33,6 +36,7 @@ rankTypeDropdown.onchange = () => {
 
 slider.oninput = () => {
     sliderValue = slider.value;
+    console.log(sliderValue)
     renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
 }
 
@@ -139,7 +143,8 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
     /** FOR ALL VISUALIZATION STUFF */
     svg.selectAll("*").remove();
     let dataArray = Object.entries(jsonData);
-    console.log(dataArray.length)
+    dataArray = dataArray.slice(0, ++rankRange)
+    //console.log(dataArray.length)
     let advice = dataArray.map((entry) => entry[0]);
     let rankings = dataArray.map((entry) => entry[1][rankType]);
     /** Plot Axes */
