@@ -11,13 +11,13 @@ const height = 500;
 let data, selectedCategory, selectedRankType, sliderValue, sorted;
 
 window.onload = function() {
-        data = processedJson;
-        selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
-        selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
-        sliderValue = slider.value;
-        sorted = sortCheckbox.checked;
-        renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
-    }
+    data = processedJson;
+    selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
+    selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
+    sliderValue = slider.value;
+    sorted = sortCheckbox.checked;
+    renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
+}
 
 categoryDropdown.onchange = () => {
   selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
@@ -143,7 +143,6 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
       .domain(advice)
       .range([margins.left, width])
       .padding(0.1);
-  console.log(d3.max(rankings));
   let yScale = d3.scaleLinear()
       .domain([d3.min(rankings), d3.max(rankings)])
   .rangeRound([height - 50 - margins.bottom, margins.top]);
@@ -157,6 +156,22 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
       .attr("transform", `translate(${margins.left}, ${margins.top})`)
       .call(d3.axisLeft(yScale));
   /** END of Plot Axes */
+  let minY = d3.min(rankings);
+    svg.selectAll("rect")
+        .data(jsonData)
+        .enter()
+        .append("rect")
+        .attr("x", entry => {
+            console.log(xScale(entry["name"]));
+            console.log("here");
+            return xScale(entry["name"]);
+        })
+        .attr("y", entry => yScale(entry[rankType]))
+        .attr("width", xScale.bandwidth())
+        .attr("height", entry => {
+            let number = entry[rankType];
+            return yScale(minY) - yScale(number);
+        })
 
   /** update purposes on svg */
   // function update(input, speed) {
