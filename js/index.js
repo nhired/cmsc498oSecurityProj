@@ -1,30 +1,34 @@
 /* variables and data that is important to have */
 const svg = d3.select("svg");
+const homeButton = document.getElementById("homeButton");
 const categoryDropdown = document.getElementById("category");
 const rankTypeDropdown = document.getElementById("rankType");
 const slider = document.getElementById("rankRange");
 const sortCheckbox = document.getElementById("sort");
 const sliderMax = document.getElementById("sliderMax");
 const margins = { top: 50, bottom: 50, left: 100, right: 80 };
-const width = 1000;
-const height = 500;
+const width = svg.attr("width");
+const height = svg.attr("height");
 
 let data, selectedCategory, selectedRankType, sliderValue, sorted;
 
-window.onload = function() {
+window.onload = () => {
     data = processedJson;
     selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
     selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
     sliderValue = slider.value;
     sorted = sortCheckbox.checked;
-    renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
+    renderCardinalityVisualization(data);
 }
+
+homeButton.onclick = () => renderCardinalityVisualization(data);
+
 
 categoryDropdown.onchange = () => {
     selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
-    sliderMax.innerHTML = Object.entries(data[selectedCategory]).length
-    slider.max = Object.entries(data[selectedCategory]).length
-    slider.value = Object.entries(data[selectedCategory]).length
+    sliderMax.innerHTML = Object.entries(data[selectedCategory]).length;
+    slider.max = Object.entries(data[selectedCategory]).length;
+    slider.value = Object.entries(data[selectedCategory]).length;
     sliderValue = slider.value;
     renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
 };
@@ -36,7 +40,6 @@ rankTypeDropdown.onchange = () => {
 
 slider.oninput = () => {
     sliderValue = slider.value;
-    console.log(sliderValue)
     renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
 }
 
@@ -45,107 +48,80 @@ sortCheckbox.onchange = () => {
     renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
 }
 
-// //this function runs on startup of the HTML page
-// function processData() {
-//   getJsonData()
-//   .then(data => {
-//     var jsonData = data[0];
-//     var expertData = data[1];
-//     var userData = data[2];
-//
-//     insertRankings(jsonData, userData, "user");
-//     insertRankings(jsonData, expertData, "expert");
-//     data = jsonData;
-//     return jsonData;
-//   })
-//   .then(jsonData => {
-//     console.log(jsonData)
-//     renderVisualization(jsonData);
-//   })
-//   .catch(e => console.log(e));
-// }
+function renderCardinalityVisualization(jsonData) {
+    svg.selectAll("*").remove();
+    let dataArray = Object.entries(jsonData);
+    let categories = dataArray.map(entry => entry[0]);
+    let counts = dataArray.map(entry => Object.keys(jsonData[entry[0]]).length);
+    let minBuffer = 1;
 
-//Retreieves all 3 promises that contain the JSONout-cast file, the expert and nonexpert html files
-// function getJsonData() {
-//   return Promise.all([
-//     fetch("http://localhost:8080/").then(req => req.json()),
-//     fetch("http://localhost:8080/expert").then(req => req.text()),
-//     fetch("http://localhost:8080/user").then(req => req.text())
-//   ])
-// }
+    let xScale = d3.scaleBand()
+        .domain(categories)
+        .range([margins.left, width - margins.right])
+        .padding(0.1);
+    let yScale = d3.scaleLinear()
+        .domain([d3.min(counts) - minBuffer, d3.max(counts)])
+        .range([height - margins.bottom, margins.top]);
 
+    // Plot axes
+    svg.append("g")
+        .attr("id", "xAxis")
+        .attr("transform", `translate(0, ${svg.attr("height") - margins.bottom})`)
+        .call(d3.axisBottom(xScale))
+        .selectAll("text")
+        .remove();
+    svg.append("g")
+        .attr("id", "yAxis")
+        .attr("transform", `translate(${margins.left}, 0)`)
+        .call(d3.axisLeft(yScale));
 
-// function insertRankings(jsonData, data, boolean) {
-//   for( let prop in jsonData ){
-//     var securityField = jsonData[prop];
-//
-//     //arr contains all string advice keys in the security field json block
-//     var arr = Object.keys(securityField);
-//     var len = arr.length;
-//     var rating = 0;
-//
-//     //get the rating for that advice string
-//     for(i = 0; i < len; i++) {
-//
-//       var key = arr[i];
-//       //for each advice key get the associated rating for it
-//       rating = parseHTML(arr[i], data);
-//
-//       var adviceKey = securityField[key];
-//       if(boolean.localeCompare("expert") == 0) {
-//         if(adviceKey != null) {
-//          // add new key value pair to the adviceKey string
-//           adviceKey["Expert Ranking"] = rating;
-//           adviceKey["name"] = key;
-//         }
-//       } else {
-//         if(adviceKey != null) {
-//           // add new key value pair to the adviceKey string
-//           adviceKey["User Ranking"] = rating;
-//           adviceKey["name"] = key;
-//         }
-//       }
-//     }
-//   }
-// }
+    // Tooltips
+    let tip = d3.tip()
+        .attr('class', 'd3-tip')
+        .offset([-10, 0])
+        .html((data) => data[0]);
 
+    svg.call(tip);
 
-// function parseHTML(advice, data) {
-//   var htmlArr = data.split('\n');
-//   var rating = "";
-//
-//   for(let li in htmlArr) {
-//
-//     var str = htmlArr[li];
-//     //get rid of li element within string
-//     str = str.replace("<li>", "");
-//     str = str.replace("</li>", "");
-//
-//     //get phrase + number from strnig
-//     var index = str.lastIndexOf(',');
-//     var adviceStr = str.substring(0, index);
-//     var ratingStr = str.substring(index + 2, str.length);
-//
-//
-//     if(advice.localeCompare(adviceStr.toLowerCase()) === 0) {
-//       //console.log("here + " + adviceStr);
-//       rating = ratingStr;
-//     }
-//
-//   }
-//
-//   return rating;
-// }
+    // Create rectangles
+    let minY = d3.min(counts) - minBuffer;
+    d3.select("svg").selectAll("rect")
+        .data(dataArray)
+        .enter()
+        .append("rect")
+        .attr("x", entry => xScale(entry[0]))
+        .attr("y", entry => yScale(Object.keys(jsonData[entry[0]]).length))
+        .attr("width", xScale.bandwidth())
+        .attr("height", entry => {
+            let number = Object.keys(jsonData[entry[0]]).length;
+            return yScale(minY) - yScale(number);
+        })
+        .on('mouseover', tip.show)
+        .on('mouseout', tip.hide);
 
-
+    // Create axis labels
+    svg.append("text")
+        .attr("transform",
+            "translate(" + (width/2) + " ," +
+            (height - margins.bottom + 40) + ")")
+        .style("text-anchor", "middle")
+        .text("Category");
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 35) //variables inverted due to rotation
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Quantity");
+}
 
 function renderVisualization(jsonData, rankType, rankRange, sorted) {
     /** FOR ALL VISUALIZATION STUFF */
     svg.selectAll("*").remove();
 
-    let minBuffer = 0.05
     let dataArray = Object.entries(jsonData);
-    dataArray = dataArray.slice(0, ++rankRange)
+    dataArray = dataArray.slice(0, ++rankRange);
+    let minBuffer = 0.05;
     if (sorted) {
       dataArray.sort(function(a, b) {
         let rankA = a[1][rankType];
@@ -159,18 +135,19 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
         }
       });
     }
-    //console.log(dataArray.length)
+
     let advice = dataArray.map((entry) => entry[0]);
     let rankings = dataArray.map((entry) => entry[1][rankType]);
     /** Plot Axes */
     let xScale = d3.scaleBand()
         .domain(advice)
-        .range([margins.left, width])
+        .range([margins.left, width - margins.right])
         .padding(0.1);
     let yScale = d3.scaleLinear()
         .domain([d3.min(rankings) - minBuffer, d3.max(rankings)])
         .range([height - margins.bottom, margins.top]);
 
+    // Plot axes
     svg.append("g")
         .attr("id", "xAxis")
         .attr("transform", `translate(0, ${svg.attr("height") - margins.bottom})`)
@@ -181,8 +158,8 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
         .attr("id", "yAxis")
         .attr("transform", `translate(${margins.left}, 0)`)
         .call(d3.axisLeft(yScale));
-    /** END of Plot Axes */
 
+    // Tooltips
     let tip = d3.tip()
         .attr('class', 'd3-tip')
         .offset([-10, 0])
@@ -206,28 +183,18 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
         .on('mouseover', tip.show)
         .on('mouseout', tip.hide);
 
-    /** update purposes on svg */
-    // function update(input, speed) {
-    //   /** handling UI changes */
-    //   var attr = d3.select("#category").property("value");
-    //   var data = jsonData[attr];
-    //
-    //   /** USE THIS TO GET RANKING
-    //    * if both, show both expert and user
-    //    * if user, show user
-    //    * if expert, show expert
-    //    */
-    //   var viewInput = d3.select('#rankType').property("value");
-    //   // TODO: check if both, this is where the double bars will come in
-    //
-    //   /** TOGGLE SORT for VIS */
-    //   var adviceSet = Object.keys(data);
-    //  /*if (viewInput !== "Both") {
-    //     data.sort(d3.select("#sort").property("checked")
-    //           ? (a, b) => b.viewInput - a.viewInput
-    //           : (a, b) => adviceSet.indexOf(a[name]) - adviceSet.indexOf(b[name]))
-    //   }*/
-    //   /** TODO: d3 goes here!!! */
-    // }
+    svg.append("text")
+        .attr("transform",
+            "translate(" + (width/2) + " ," +
+            (height - margins.bottom + 40) + ")")
+        .style("text-anchor", "middle")
+        .text("Advice");
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 35) //variables inverted due to rotation
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Quality");
 }
 

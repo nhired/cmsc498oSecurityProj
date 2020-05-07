@@ -20,6 +20,10 @@ h1 {
     font-weight: lighter;
     text-align: center;
 }
+
+button {
+
+}
 .d3-tip {
     line-height: 1;
     font-weight: normal;
