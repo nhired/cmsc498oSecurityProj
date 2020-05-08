@@ -89,7 +89,10 @@ function renderCardinalityVisualization(jsonData) {
         .data(dataArray)
         .enter()
         .append("rect")
-        .on("click", console.log("Worked"))
+        .on("click", () => {
+            console.log("Worked");
+            d3.event.stopPropagation();
+        })
         .attr("x", entry => xScale(entry[0]))
         .attr("y", entry => yScale(Object.keys(jsonData[entry[0]]).length))
         .attr("width", xScale.bandwidth())
