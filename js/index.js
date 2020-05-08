@@ -89,8 +89,8 @@ function renderCardinalityVisualization(jsonData) {
         .data(dataArray)
         .enter()
         .append("rect")
-        .on("click", () => {
-            console.log("Worked");
+        .on("click", entry => {
+            renderVisualization(jsonData[entry[0]], selectedRankType, sliderValue, sorted);
             d3.event.stopPropagation();
         })
         .attr("x", entry => xScale(entry[0]))
