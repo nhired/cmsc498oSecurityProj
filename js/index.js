@@ -89,6 +89,7 @@ function renderCardinalityVisualization(jsonData) {
         .data(dataArray)
         .enter()
         .append("rect")
+        .on("click", console.log("Worked"))
         .attr("x", entry => xScale(entry[0]))
         .attr("y", entry => yScale(Object.keys(jsonData[entry[0]]).length))
         .attr("width", xScale.bandwidth())
@@ -98,6 +99,7 @@ function renderCardinalityVisualization(jsonData) {
         })
         .on('mouseover', tip.show)
         .on('mouseout', tip.hide);
+
 
     // Create axis labels
     svg.append("text")
