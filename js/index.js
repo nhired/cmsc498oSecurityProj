@@ -99,7 +99,7 @@ function renderCardinalityVisualization(jsonData) {
         .domain([d3.min(counts) - minBuffer, d3.max(counts)])
         .range([height - margins.bottom, margins.top]);
     let colorScale = d3.scaleOrdinal().domain(categories)
-        .range(["gold", "blue", "green", "yellow", "black", "grey", "darkgreen", "pink", "brown", "slateblue", "red", "orange"]);
+        .range(["gold", "blue", "green", "yellow", "black", "grey", "cyan", "pink", "brown", "slateblue", "red", "orange"]);
 
     // Plot axes
     svg.append("g")
