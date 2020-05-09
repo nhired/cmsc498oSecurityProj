@@ -9,14 +9,22 @@
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 </head>
 <body>
-  <div>
-    <button type="button" id="homeButton">Home</button>
+  <br>
     <br>
-    <svg id="vis" width="1000" height="500"></svg>
+    <button type="button" id="homeButton">Home</button>
+  <div class="container" style="display: flex">
+    <br>
+    <div style="width: 90%">
+      <svg id="vis" width="1000" height="500"></svg>
+    </div>
+    <div style="flex-grow: 1">
+      <text id="textField"></text>
+    </div>
   </div>
   <hr>
   <div class="grid-container" id="ui-div"> 
     <div class="grid-item" id="cat-select"> 
+      <!--
       Select Category of Security: <select id="category">
         <option value="Account Security" selected="selected">Account Security</option>
         <option value="Antivirus">Antivirus</option>
@@ -31,6 +39,7 @@
         <option value="Privacy">Privacy</option>
         <option value="Software">Software</option>
       </select> 
+      -->
     </div>
     <div class="grid-item" id="rankType-select"> 
       Select Rankings Type:<select id="rankType">
@@ -40,8 +49,10 @@
       </select>
     </div>
     <div class="grid-item" id="rankView">
+      <!--
       <label for="rankRange"> Select Rankings Range:</label>
       1 <input type="range" id="rankRange" name="quantity" min="1" max="59" value="59"> <text id ="sliderMax">59</text>
+     -->
     </div>
     <div class="grid-item" id="sortDiv">
       Toggle Sort <input type="checkbox" id="sort"> 

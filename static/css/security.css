@@ -1,7 +1,3 @@
-rect {
-    fill: #004953;
-}
-
 rect:hover {
     fill: limegreen;
 }
@@ -21,9 +17,6 @@ h1 {
     text-align: center;
 }
 
-button {
-
-}
 .d3-tip {
     line-height: 1;
     font-weight: normal;
