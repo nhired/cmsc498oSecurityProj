@@ -170,6 +170,20 @@ function renderCardinalityVisualization(jsonData) {
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Quantity");
+
+ /** ADDED LEGEND FOR BAR CHART */
+    /*var legend = d3.legendColor()
+        .shape("rect")
+        .shapeWidth(height / 6)
+        .shapePadding(10)
+        .orient('horizontal')
+        .scale(colorScale);
+    d3.select("#vis")
+    .append("g")
+    .attr("class", "legendLinear")
+    .attr("transform", `translate(0, ${height + 50})`)
+    .call(legend);*/
+
 }
 
 function renderVisualization(jsonData, rankType, rankRange, sorted) {
@@ -279,27 +293,13 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
     let dataArray = Object.entries(jsonData);
     //dataArray = dataArray.slice(0, ++rankRange);
     let minBuffer = 0.05;
-    if (sorted) {
-      dataArray.sort(function(a, b) {
-        let rankA = a[1][rankType];
-        let rankB = b[1][rankType];
-        if (rankA < rankB) {
-            return -1;
-        } else if (rankA > rankB) {
-            return 1;
-        } else {
-            return 0;
-        }
-      });
-    }
 
     let rankTypes = [expertRank, userRank];
-
+    
     dataArray.forEach(function (d) {
         d.total = d3.sum(rankTypes, k => +d[1][k])
         return d
     })
-
 
     let advice = dataArray.map((entry) => entry[0]);
     let urankings = dataArray.map((entry) => entry[1][userRank]);
@@ -307,13 +307,29 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
     let maxRank = [d3.max(urankings), d3.max(erankings)];
     let minRank = [d3.min(urankings), d3.min(erankings)];
 
+
+    if (sorted) {
+        dataArray.sort(function(a, b) {
+          let rankA = a.total;
+          let rankB = b.total;
+          if (rankA < rankB) {
+              return -1;
+          } else if (rankA > rankB) {
+              return 1;
+          } else {
+              return 0;
+          }
+        });
+      }
+
+
     /** Plot Axes */
     let xScale = d3.scaleBand()
         .domain(advice)
         .range([margins.left, width - margins.right])
         .padding(0.1);
     let yScale = d3.scaleLinear()
-        .domain([0, d3.max(dataArray, d => d3.sum(rankTypes, k => +d[1][k]))]).nice()
+        .domain([0, d3.max(dataArray, d => d3.sum(rankTypes, k => +d[1][k]))])
         .range([height - margins.bottom, margins.top]);
 
     // Plot axes
@@ -339,19 +355,29 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
 
     var rankStat = d3.stack().keys(rankTypes)(dataArray);
 
-    var group = d3.select("#vis").selectAll("g.layer")
-    .data(rankStat, d => d.key);
+    console.log(rankStat)
 
     var colors = d3.scaleOrdinal()
         .range(["#FE9092", "#208EA3"])
         .domain(rankTypes);
 
+    var group = d3.select("#vis").selectAll("g.layer")
+    .data(d3.stack().keys(rankTypes)(dataArray), d => d.key);
+
+    /*var groups = svg.selectAll("g.cost")
+    .data(rankStat)
+    .enter().append("g")
+    .attr("class", "cost")
+    .style("fill", function(d, i) { return colors[i]; });*/
+
+    group.exit().remove();
+
     group.enter().append("g")
-            .classed("layer", true)
+        .classed("layer", true)
             .attr("fill", d => colors(d.key));
 
     var bars = d3.select("#vis").selectAll("g.layer").selectAll("rect")
-        .data(d => d, e => e.data.key);
+        .data(d => d, e => { return e.data.key });
 
     bars.exit().remove()
 
@@ -359,18 +385,20 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
     let minY = d3.min(minRank) - minBuffer;
     bars.enter().append("rect")
         .merge(bars)
-        .attr("x", entry => xScale(entry[0]))
-        .attr("y", entry => yScale(entry[1]))
+        .attr("x", entry => xScale(entry["data"][0]))
+        .attr("y", entry => {
+            return yScale(entry["data"].total) }
+        )
         .attr("width", xScale.bandwidth())
         .attr("height", entry => {
-            let number = parseFloat(entry["data"][1][expertRank]) + parseFloat(entry["data"][1][userRank]);
+            let number = entry["data"].total;
             return yScale(minY) - yScale(number);
         })
         .on('mouseover', tip.show)
         .on('mouseover', data => {
-            textField.innerHTML = "<b>Advice: </b>" + data[0] + "<br>" + 
-                "<b>" + expertRank + ": </b>" + (data[1][expertRank]) + "<br>" + 
-                "<b>" + userRank + ": </b>" + (data[1][userRank]);
+            textField.innerHTML = "<b>Advice: </b>" + data["data"][0] + "<br>" + 
+                "<b>" + expertRank + ": </b>" + (data["data"][1][expertRank]) + "<br>" + 
+                "<b>" + userRank + ": </b>" + (data["data"][1][userRank]);
             d3.event.stopPropagation();
         })
         .on('mouseout', () => {
