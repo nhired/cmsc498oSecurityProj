@@ -247,7 +247,6 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
         })
         .on('mouseover', tip.show)
         .on('mouseover', data => {
-            console.log(rankType);
             textField.innerHTML = "<b>Advice: </b>" + data[0] + "<br>" + 
                 "<b>" + rankType + ": </b>" + (data[1][rankType]);
             d3.event.stopPropagation();
@@ -300,8 +299,6 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
         d.total = d3.sum(rankTypes, k => +d[1][k])
         return d
     })
-
-    console.log(dataArray);
 
 
     let advice = dataArray.map((entry) => entry[0]);
@@ -366,8 +363,7 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
         .attr("y", entry => yScale(entry[1]))
         .attr("width", xScale.bandwidth())
         .attr("height", entry => {
-            let number = parseFloat(entry[1][expertRank]) + parseFloat(entry[1][userRank]);
-            console.log(number)
+            let number = parseFloat(entry["data"][1][expertRank]) + parseFloat(entry["data"][1][userRank]);
             return yScale(minY) - yScale(number);
         })
         .on('mouseover', tip.show)
