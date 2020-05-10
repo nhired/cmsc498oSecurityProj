@@ -37,6 +37,7 @@ window.onload = () => {
     sorted = sortCheckbox.checked;
     //calculateAvg(data, "Account Security", "Expert Ranking");
     renderCardinalityVisualization(data);
+    document.getElementById("ui-div").style.visibility = "hidden";
 }
 
 function calculateAvg(jsonData, category, rankType) {
@@ -54,7 +55,10 @@ function calculateAvg(jsonData, category, rankType) {
     console.log("AVG: " + sum/(array.length - emptyCount))
 }
 
-homeButton.onclick = () => renderCardinalityVisualization(data);
+homeButton.onclick = () => { 
+    renderCardinalityVisualization(data);
+    document.getElementById("ui-div").style.visibility = "hidden";
+}
 
 /*
 categoryDropdown.onchange = () => {
@@ -69,7 +73,11 @@ categoryDropdown.onchange = () => {
 
 rankTypeDropdown.onchange = () => {
     selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
-    renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
+    if (selectedRankType === "Both") {
+        renderBothVisualization(data[selectedCategory], "Expert Ranking", "User Ranking", sliderValue, sorted);
+    } else {
+        renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
+    }
 };
 
 /*
@@ -99,7 +107,7 @@ function renderCardinalityVisualization(jsonData) {
         .domain([d3.min(counts) - minBuffer, d3.max(counts)])
         .range([height - margins.bottom, margins.top]);
     let colorScale = d3.scaleOrdinal().domain(categories)
-        .range(["gold", "blue", "green", "yellow", "black", "grey", "cyan", "pink", "brown", "slateblue", "red", "orange"]);
+        .range(["#4E4D5C", "#227C9D", "#1DA0A8", "#17C3B2", "#8BC795", "#C5C986", "#FFCB77", "#FFE2B3", "#FFCBB2", "#FEB3B1", "#FE6D73", "#712F79"]);
 
     // Plot axes
     svg.append("g")
@@ -134,6 +142,7 @@ function renderCardinalityVisualization(jsonData) {
             selectedCategory = entry[0];
             d3.selectAll(".d3-tip.n").remove();
             renderVisualization(jsonData[entry[0]], selectedRankType, sliderValue, sorted);
+            document.getElementById("ui-div").style.visibility = "visible";
             d3.event.stopPropagation();
         })
         .attr("x", entry => xScale(entry[0]))
@@ -231,9 +240,9 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
         })
         .attr("fill", () => {
             if (rankType == "Expert Ranking") {
-                return "darkred";
+                return "#FE9092";
             } else {
-                return "navy"
+                return "#208EA3"
             }
         })
         .on('mouseover', tip.show)
@@ -241,6 +250,131 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
             console.log(rankType);
             textField.innerHTML = "<b>Advice: </b>" + data[0] + "<br>" + 
                 "<b>" + rankType + ": </b>" + (data[1][rankType]);
+            d3.event.stopPropagation();
+        })
+        .on('mouseout', () => {
+            tip.hide
+            textField.innerHTML = ""
+            d3.event.stopPropagation();
+        });
+
+    svg.append("text")
+        .attr("transform",
+            "translate(" + (width/2) + " ," +
+            (height - margins.bottom + 40) + ")")
+        .style("text-anchor", "middle")
+        .text("Advice");
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 35) //variables inverted due to rotation
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Quality of Advice");
+}
+
+function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sorted) {
+    /** FOR ALL VISUALIZATION STUFF */
+    svg.selectAll("*").remove();
+
+    let dataArray = Object.entries(jsonData);
+    //dataArray = dataArray.slice(0, ++rankRange);
+    let minBuffer = 0.05;
+    if (sorted) {
+      dataArray.sort(function(a, b) {
+        let rankA = a[1][rankType];
+        let rankB = b[1][rankType];
+        if (rankA < rankB) {
+            return -1;
+        } else if (rankA > rankB) {
+            return 1;
+        } else {
+            return 0;
+        }
+      });
+    }
+
+    let rankTypes = [expertRank, userRank];
+
+    dataArray.forEach(function (d) {
+        d.total = d3.sum(rankTypes, k => +d[1][k])
+        return d
+    })
+
+    console.log(dataArray);
+
+
+    let advice = dataArray.map((entry) => entry[0]);
+    let urankings = dataArray.map((entry) => entry[1][userRank]);
+    let erankings =  dataArray.map((entry) => entry[1][expertRank]);
+    let maxRank = [d3.max(urankings), d3.max(erankings)];
+    let minRank = [d3.min(urankings), d3.min(erankings)];
+
+    /** Plot Axes */
+    let xScale = d3.scaleBand()
+        .domain(advice)
+        .range([margins.left, width - margins.right])
+        .padding(0.1);
+    let yScale = d3.scaleLinear()
+        .domain([0, d3.max(dataArray, d => d3.sum(rankTypes, k => +d[1][k]))]).nice()
+        .range([height - margins.bottom, margins.top]);
+
+    // Plot axes
+    svg.append("g")
+        .attr("id", "xAxis")
+        .attr("transform", `translate(0, ${svg.attr("height") - margins.bottom})`)
+        .call(d3.axisBottom(xScale))
+        .selectAll("text")
+        .remove();
+    svg.append("g")
+        .attr("id", "yAxis")
+        .attr("transform", `translate(${margins.left}, 0)`)
+        .call(d3.axisLeft(yScale));
+
+    // Tooltips
+    let tip = d3.tip()
+        .attr('class', 'd3-tip')
+        .offset([-10, 0])
+        .html((data) => data[0] + "<br>" +
+        "Ranking: <span class='tooltip'>" + (data[1][rankType]) + "</span><br>");
+
+    svg.call(tip);
+
+    var rankStat = d3.stack().keys(rankTypes)(dataArray);
+
+    var group = d3.select("#vis").selectAll("g.layer")
+    .data(rankStat, d => d.key);
+
+    var colors = d3.scaleOrdinal()
+        .range(["#FE9092", "#208EA3"])
+        .domain(rankTypes);
+
+    group.enter().append("g")
+            .classed("layer", true)
+            .attr("fill", d => colors(d.key));
+
+    var bars = d3.select("#vis").selectAll("g.layer").selectAll("rect")
+        .data(d => d, e => e.data.key);
+
+    bars.exit().remove()
+
+    // Create rectangles
+    let minY = d3.min(minRank) - minBuffer;
+    bars.enter().append("rect")
+        .merge(bars)
+        .attr("x", entry => xScale(entry[0]))
+        .attr("y", entry => yScale(entry[1]))
+        .attr("width", xScale.bandwidth())
+        .attr("height", entry => {
+            let number = parseFloat(entry[1][expertRank]) + parseFloat(entry[1][userRank]);
+            console.log(number)
+            return yScale(minY) - yScale(number);
+        })
+        .on('mouseover', tip.show)
+        .on('mouseover', data => {
+            textField.innerHTML = "<b>Advice: </b>" + data[0] + "<br>" + 
+                "<b>" + expertRank + ": </b>" + (data[1][expertRank]) + "<br>" + 
+                "<b>" + userRank + ": </b>" + (data[1][userRank]);
             d3.event.stopPropagation();
         })
         .on('mouseout', () => {
