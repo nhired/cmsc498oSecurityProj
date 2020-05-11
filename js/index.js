@@ -38,6 +38,8 @@ window.onload = () => {
     //calculateAvg(data, "Account Security", "Expert Ranking");
     renderCardinalityVisualization(data);
     document.getElementById("ui-div").style.visibility = "hidden";
+    d3.select(".legendLinear").attr("visibility", "visible");
+    d3.select(".legendLinear2").attr("visibility", "visible");
 }
 
 function calculateAvg(jsonData, category, rankType) {
@@ -58,6 +60,8 @@ function calculateAvg(jsonData, category, rankType) {
 homeButton.onclick = () => { 
     renderCardinalityVisualization(data);
     document.getElementById("ui-div").style.visibility = "hidden";
+    d3.select(".legendLinear").attr("visibility", "visible");
+    d3.select(".legendLinear2").attr("visibility", "visible");
 }
 
 /*
@@ -105,14 +109,14 @@ function renderCardinalityVisualization(jsonData) {
         .padding(0.1);
     let yScale = d3.scaleLinear()
         .domain([d3.min(counts) - minBuffer, d3.max(counts)])
-        .range([height - margins.bottom, margins.top]);
+        .range([height - 100 - margins.bottom, margins.top]);
     let colorScale = d3.scaleOrdinal().domain(categories)
         .range(["#4E4D5C", "#227C9D", "#1DA0A8", "#17C3B2", "#8BC795", "#C5C986", "#FFCB77", "#FFE2B3", "#FFCBB2", "#FEB3B1", "#FE6D73", "#712F79"]);
 
     // Plot axes
     svg.append("g")
         .attr("id", "xAxis")
-        .attr("transform", `translate(0, ${svg.attr("height") - margins.bottom})`)
+        .attr("transform", `translate(0, ${svg.attr("height") - 100 - margins.bottom})`)
         .call(d3.axisBottom(xScale))
         .selectAll("text")
         .remove();
@@ -160,7 +164,7 @@ function renderCardinalityVisualization(jsonData) {
     svg.append("text")
         .attr("transform",
             "translate(" + (width/2) + " ," +
-            (height - margins.bottom + 40) + ")")
+            (height - margins.bottom - 70) + ")")
         .style("text-anchor", "middle")
         .text("Category");
     svg.append("text")
@@ -171,22 +175,44 @@ function renderCardinalityVisualization(jsonData) {
         .style("text-anchor", "middle")
         .text("Quantity");
 
- /** ADDED LEGEND FOR BAR CHART */
-    /*var legend = d3.legendColor()
-        .shape("rect")
-        .shapeWidth(height / 6)
-        .shapePadding(10)
-        .orient('horizontal')
-        .scale(colorScale);
+    let cat1 = ["Account Security", "Antivirus", "Browsers", "Data Storage", "Device Security", "Finance"];
+    let cat2 = ["General Security", "Incident Response", "Network Security", "Passwords", "Privacy", "Software"];
+    let colorScale1 = d3.scaleOrdinal().domain(cat1)
+        .range(["#4E4D5C", "#227C9D", "#1DA0A8", "#17C3B2", "#8BC795", "#C5C986"]);
+
+    let colorScale2 = d3.scaleOrdinal().domain(cat2)
+    .range([ "#FFCB77", "#FFE2B3", "#FFCBB2", "#FEB3B1", "#FE6D73", "#712F79"]);
+     /** ADDED LEGEND FOR BAR CHART */
+    var legend = d3.legendColor()
+    .shape("rect")
+    .shapeWidth(height / 6)
+    .shapePadding(30)
+    .orient('horizontal')
+    .scale(colorScale1);
     d3.select("#vis")
     .append("g")
     .attr("class", "legendLinear")
-    .attr("transform", `translate(0, ${height + 50})`)
-    .call(legend);*/
+    .attr("transform", `translate(100, 500)`)
+    .call(legend);
+
+    var legend2 = d3.legendColor()
+    .shape("rect")
+    .shapeWidth(height / 6)
+    .shapePadding(30)
+    .orient('horizontal')
+    .scale(colorScale2);
+d3.select("#vis")
+    .append("g")
+    .attr("class", "legendLinear2")
+    .attr("transform", `translate(100, 550)`)
+    .call(legend2);
+
 
 }
 
 function renderVisualization(jsonData, rankType, rankRange, sorted) {
+    d3.select(".legendLinear").attr("visibility", "hidden");
+    d3.select(".legendLinear2").attr("visibility", "hidden");
     /** FOR ALL VISUALIZATION STUFF */
     svg.selectAll("*").remove();
 
@@ -216,12 +242,12 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
         .padding(0.1);
     let yScale = d3.scaleLinear()
         .domain([d3.min(rankings) - minBuffer, d3.max(rankings)])
-        .range([height - margins.bottom, margins.top]);
+        .range([height - 50 - margins.bottom, margins.top]);
 
     // Plot axes
     svg.append("g")
         .attr("id", "xAxis")
-        .attr("transform", `translate(0, ${svg.attr("height") - margins.bottom})`)
+        .attr("transform", `translate(0, ${svg.attr("height") - 50 - margins.bottom})`)
         .call(d3.axisBottom(xScale))
         .selectAll("text")
         .remove();
@@ -274,7 +300,7 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
     svg.append("text")
         .attr("transform",
             "translate(" + (width/2) + " ," +
-            (height - margins.bottom + 40) + ")")
+            (height - margins.bottom - 40) + ")")
         .style("text-anchor", "middle")
         .text("Advice");
     svg.append("text")
@@ -284,7 +310,7 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Quality of Advice");
-}
+ }
 
 function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sorted) {
     /** FOR ALL VISUALIZATION STUFF */
@@ -330,12 +356,12 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
         .padding(0.1);
     let yScale = d3.scaleLinear()
         .domain([0, d3.max(dataArray, d => d3.sum(rankTypes, k => +d[1][k]))])
-        .range([height - margins.bottom, margins.top]);
+        .range([height - 100 - margins.bottom, margins.top]);
 
     // Plot axes
     svg.append("g")
         .attr("id", "xAxis")
-        .attr("transform", `translate(0, ${svg.attr("height") - margins.bottom})`)
+        .attr("transform", `translate(0, ${svg.attr("height") - 100 - margins.bottom})`)
         .call(d3.axisBottom(xScale))
         .selectAll("text")
         .remove();
@@ -361,14 +387,39 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
         .range(["#FE9092", "#208EA3"])
         .domain(rankTypes);
 
-    var group = d3.select("#vis").selectAll("g.layer")
-    .data(d3.stack().keys(rankTypes)(dataArray), d => d.key);
+    /*
+    var rects = d3.select("#vis").append("g")
+      .attr("transform", "translate("+margins.left+","+margins.top+")")
+      .selectAll("g").data(rankStat).enter()
+        .append("g")
+        .attr("fill", d => colors(d.key));
 
-    /*var groups = svg.selectAll("g.cost")
-    .data(rankStat)
-    .enter().append("g")
-    .attr("class", "cost")
-    .style("fill", function(d, i) { return colors[i]; });*/
+
+    let minY = d3.min(minRank) - minBuffer;
+    rects.selectAll("rect")
+        .data(d => d)
+        .join("rect")
+        .attr("x", (d, i) => xScale(d.data[0]))
+        .attr("y", d=> yScale(d.data.total))
+        .attr("height", d=> {
+            let number = d.data[1];
+            return yScale(minY) - yScale(number);
+        })
+        .attr("width", xScale.bandwidth())
+        .on('mouseover', tip.show)
+        .on('mouseover', data => {
+            textField.innerHTML = "<b>Advice: </b>" + data["data"][0] + "<br>" + 
+                "<b>" + expertRank + ": </b>" + (data["data"][1][expertRank]) + "<br>" + 
+                "<b>" + userRank + ": </b>" + (data["data"][1][userRank]);
+            d3.event.stopPropagation();
+        })
+        .on('mouseout', () => {
+            tip.hide
+            textField.innerHTML = ""
+            d3.event.stopPropagation();
+        });*/
+    var group = d3.select("#vis").selectAll("g.layer")
+    .data(rankStat, d => d.key);
 
     group.exit().remove();
 
@@ -377,7 +428,7 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
             .attr("fill", d => colors(d.key));
 
     var bars = d3.select("#vis").selectAll("g.layer").selectAll("rect")
-        .data(d => d, e => { return e.data.key });
+        .data(d => d, e => e.data.key);
 
     bars.exit().remove()
 
@@ -390,9 +441,20 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
             return yScale(entry["data"].total) }
         )
         .attr("width", xScale.bandwidth())
-        .attr("height", entry => {
-            let number = entry["data"].total;
-            return yScale(minY) - yScale(number);
+        .attr("height",entry => {
+            /** THIS SECTION HAS ISSUE */
+            var number = entry["data"][1];
+            console.log(number)
+            
+            /** for (i=0; i < rankTypes.length; i++) {
+             *  var number = entry["data"][1][i];
+             * return yScale(entry[0]) - yScale(number);
+             * } */
+
+            return yScale(entry[0]) - yScale(number);
+        
+            //console.log(number)
+            //return yScale(entry[0]) - yScale(number);
         })
         .on('mouseover', tip.show)
         .on('mouseover', data => {
@@ -410,7 +472,7 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
     svg.append("text")
         .attr("transform",
             "translate(" + (width/2) + " ," +
-            (height - margins.bottom + 40) + ")")
+            (height - margins.bottom - 70) + ")")
         .style("text-anchor", "middle")
         .text("Advice");
     svg.append("text")
@@ -419,6 +481,17 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
         .attr("x",0 - (height / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .text("Quality");
-}
+        .text("Quality of Advice");
 
+    var legend = d3.legendColor()
+    .shape("rect")
+    .shapeWidth(height / 6)
+    .shapePadding(10)
+    .orient('horizontal')
+    .scale(colors);
+    d3.select("#vis")
+    .append("g")
+    .attr("class", "legendRank")
+    .attr("transform", `translate(375, 500)`)
+    .call(legend);
+}
