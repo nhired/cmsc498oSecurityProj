@@ -4,12 +4,14 @@ const textField = document.getElementById("textField");
 const homeButton = document.getElementById("homeButton");
 //const categoryDropdown = document.getElementById("category");
 const rankTypeDropdown = document.getElementById("rankType");
-//const slider = document.getElementById("rankRange");
+const slider = document.getElementById("rankRange");
+const submitRankBtn = document.getElementById("rankBtn");
 const sortCheckbox = document.getElementById("sort");
-//const sliderMax = document.getElementById("sliderMax");
+const sliderMax = document.getElementById("sliderMax");
 const margins = { top: 50, bottom: 50, left: 100, right: 80 };
 const width = svg.attr("width");
 const height = svg.attr("height");
+var filtered = false;
 
 const rankingValues = new Map();
 rankingValues.set("Account Security", {"Expert": 3.406779661016949, "User": 1.7796610169491525});
@@ -28,13 +30,17 @@ rankingValues.set("Software", {"Expert": 3.176470588235294, "User": 1.9411764705
 let data, selectedCategory, selectedRankType, sliderValue, sorted;
 
 window.onload = () => {
+    document.getElementById("homeButton").style.visibility = "hidden";
     data = processedJson;
     selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
+   // sliderValue = slider.value;
     sorted = sortCheckbox.checked;
     renderCardinalityVisualization(data);
     document.getElementById("ui-div").style.visibility = "hidden";
+    
     d3.select(".legendLinear").attr("visibility", "visible");
     d3.select(".legendLinear2").attr("visibility", "visible");
+   // alert("Note to User: The lower the ranking Number the Better!")
 }
 
 homeButton.onclick = () => { 
@@ -42,7 +48,30 @@ homeButton.onclick = () => {
     document.getElementById("ui-div").style.visibility = "hidden";
     d3.select(".legendLinear").attr("visibility", "visible");
     d3.select(".legendLinear2").attr("visibility", "visible");
+    document.getElementById("homeButton").style.visibility = "hidden";
 }
+
+submitRankBtn.onclick = () => { 
+    const minRank = document.getElementById("minRank").value;
+    const maxRank = document.getElementById("maxRank").value;
+    
+    let dataArray = Object.entries(data[selectedCategory]);
+
+    let rankingArr = dataArray.filter(function(d) {
+        var jsonObj = d[1];
+        var ranking = Number(jsonObj[selectedRankType])
+        return ranking <= Number(maxRank) && ranking >= Number(minRank);
+
+    });
+
+    var json = {};
+    rankingArr.forEach(function(d){
+        json[d[0]] = d[1];
+    });
+    renderVisualization(json, selectedRankType, sliderValue, sorted);
+}
+
+
 
 rankTypeDropdown.onchange = () => {
     selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
@@ -52,6 +81,8 @@ rankTypeDropdown.onchange = () => {
         renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted, selectedCategory);
     }
 };
+
+
 sortCheckbox.onchange = () => {
     sorted = sortCheckbox.checked;
     if (selectedRankType === "Both") {
@@ -82,14 +113,17 @@ function renderCardinalityVisualization(jsonData) {
     svg.append("g")
         .attr("id", "xAxis")
         .attr("transform", `translate(0, ${svg.attr("height") - 100 - margins.bottom})`)
+
+
         .call(d3.axisBottom(xScale))
         .selectAll("text")
         .remove();
     svg.append("g")
         .attr("id", "yAxis")
+        .attr( "stroke-width", '3px')
         .attr("transform", `translate(${margins.left}, 0)`)
         .call(d3.axisLeft(yScale));
-
+    
     // Tooltips
     let tip = d3.tip()
         .attr('class', 'd3-tip')
@@ -127,12 +161,15 @@ function renderCardinalityVisualization(jsonData) {
 
     // Create axis labels
     svg.append("text")
+        .attr("id", "categoryText")
         .attr("transform",
             "translate(" + (width/2) + " ," +
             (height - margins.bottom - 70) + ")")
         .style("text-anchor", "middle")
         .text("Categories of Security Advice");
+
     svg.append("text")
+        .attr("id", "recordsText")
         .attr("transform", "rotate(-90)")
         .attr("y", 35) //variables inverted due to rotation
         .attr("x",0 - (height / 2))
@@ -147,43 +184,41 @@ function renderCardinalityVisualization(jsonData) {
 
     let colorScale2 = d3.scaleOrdinal().domain(cat2)
     .range([ "#FFCB77", "#FFE2B3", "#FFCBB2", "#FEB3B1", "#FE6D73", "#712F79"]);
-     
-    /** ADDED LEGEND FOR BAR CHART */
-     var legend = d3.legendColor()
-    .shape("rect")
-    .shapeWidth(height / 6)
-    .shapePadding(30)
-    .orient('horizontal')
-    .scale(colorScale1);
+
+        /** ADDED LEGEND FOR BAR CHART */
+        var legend = d3.legendColor()
+        .shape("rect")
+        .shapeWidth(height / 6)
+        .shapePadding(30)
+        .orient('horizontal')
+        .scale(colorScale1);
+        d3.select("#vis")
+        .append("g")
+        .attr("class", "legendLinear")
+        .attr("transform", `translate(100, 500)`)
+        .call(legend);
+    
+        var legend2 = d3.legendColor()
+        .shape("rect")
+        .shapeWidth(height / 6)
+        .shapePadding(30)
+        .orient('horizontal')
+        .scale(colorScale2);
     d3.select("#vis")
-    .append("g")
-    .attr("class", "legendLinear")
-    .attr("transform", `translate(100, 500)`)
-    .call(legend);
-
-    var legend2 = d3.legendColor()
-    .shape("rect")
-    .shapeWidth(height / 6)
-    .shapePadding(30)
-    .orient('horizontal')
-    .scale(colorScale2);
-d3.select("#vis")
-    .append("g")
-    .attr("class", "legendLinear2")
-    .attr("transform", `translate(100, 550)`)
-    .call(legend2);
-
-
+        .append("g")
+        .attr("class", "legendLinear2")
+        .attr("transform", `translate(100, 550)`)
+        .call(legend2);
 }
 
 function renderVisualization(jsonData, rankType, rankRange, sorted, selectedCategory) {
+    document.getElementById("homeButton").style.visibility = "visible";
     d3.select(".legendLinear").attr("visibility", "hidden");
     d3.select(".legendLinear2").attr("visibility", "hidden");
     /** FOR ALL VISUALIZATION STUFF */
     svg.selectAll("*").remove();
 
     let dataArray = Object.entries(jsonData);
-    //dataArray = dataArray.slice(0, ++rankRange);
     let minBuffer = 0.05;
     if (sorted) {
       dataArray.sort(function(a, b) {
@@ -215,16 +250,18 @@ function renderVisualization(jsonData, rankType, rankRange, sorted, selectedCate
         .attr("id", "xAxis")
         .attr("transform", `translate(0, ${svg.attr("height") - 50 - margins.bottom})`)
         .call(d3.axisBottom(xScale))
+        .attr( "stroke-width", '3px')
         .selectAll("text")
         .remove();
     svg.append("g")
         .attr("id", "yAxis")
+        .attr( "stroke-width", '3px')
         .attr("transform", `translate(${margins.left}, 0)`)
         .call(d3.axisLeft(yScale));
 
     // Tooltips
     let tip = d3.tip()
-        .attr('class', 'd3-tip')
+        .attr('class', 'inner-tip')
         .offset([-10, 0])
         .html((data) => data[0] + "<br>" +
         "Ranking: <span class='tooltip'>" + (data[1][rankType]) + "</span><br>");
@@ -253,32 +290,59 @@ function renderVisualization(jsonData, rankType, rankRange, sorted, selectedCate
         })
         .on('mouseover', tip.show)
         .on('mouseover', data => {
-            textField.innerHTML = "<b>Advice: </b>" + data[0] + "<br>" + 
-                "<b>" + rankType + ": </b>" + (data[1][rankType]);
+            document.getElementById("sidetext-div").style.visibility = "visible";
+            var confidence = data[1]["Actionability"][0].split(':')
+            var time = data[1]["Actionability"][1].split(':')
+            var disruptive = data[1]["Actionability"][2].split(':') 
+            var difficulty = data[1]["Actionability"][3].split(':')
+            var accuracy = data[1]["Accuracy"][0].split(':')
+            var advice = data[0].toUpperCase();
+
+            textField.innerHTML = "<b>" + advice + "</b>" + "<br>" + "<br>" +
+                "<b>" + rankType + ": </b>" + (data[1][rankType]) +  "<br>"
+                + "<b> Example: </b>" + data[1]["Examples"][0] + "<br>"
+               + "<b>" + accuracy[0] + ": " + "</b>"+ accuracy[1] + "<br>"
+                + "<b>" + confidence[0] + ": " + "</b>"+ confidence[1] + "<br>"
+                + "<b>" + time[0] + ": " + "</b>"+ time[1] + "<br>"
+                + "<b>" + disruptive[0] + ": " + "</b>"+ disruptive[1] + "<br>"
+                + "<b>" + difficulty[0] + ": " + "</b>"+ difficulty[1] + "<br>"
+                ;
             d3.event.stopPropagation();
         })
         .on('mouseout', () => {
+            document.getElementById("sidetext-div").style.visibility = "hidden";
             tip.hide
             textField.innerHTML = ""
             d3.event.stopPropagation();
         });
 
     svg.append("text")
+        .attr("id", "adviceTxt")
         .attr("transform",
             "translate(" + (width/2) + " ," +
             (height - margins.bottom - 20) + ")")
         .style("text-anchor", "middle")
         .text("Advice for " + selectedCategory);
     svg.append("text")
+        .attr("id", "qualityTxt")
         .attr("transform", "rotate(-90)")
         .attr("y", 35) //variables inverted due to rotation
         .attr("x",0 - (height / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text(rankType + " Advice Rankings");
+
+        svg.append("text")
+        .attr("id", "noteTxt")
+        .attr("transform",
+            "translate(" + (width/2) + " ," +
+            (height  - 40) + ")")
+        .style("text-anchor", "middle")
+        .text("Note to User: Lower The Ranking Number The Better!" );
  }
 
 function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sorted, selectedCategory) {
+    document.getElementById("homeButton").style.visibility = "visible";
     /** FOR ALL VISUALIZATION STUFF */
     svg.selectAll("*").remove();
 
@@ -338,7 +402,7 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
 
     // Tooltips
     let tip = d3.tip()
-        .attr('class', 'd3-tip')
+        .attr('class', 'inner-tip')
         .offset([-10, 0])
         .html((data) => data[0] + "<br>" +
         "Ranking: <span class='tooltip'>" + (data[1][rankType]) + "</span><br>");
@@ -406,6 +470,14 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Advice Rankings");
+
+    svg.append("text")
+        .attr("id", "noteTxt")
+        .attr("transform",
+            "translate(" + (width/2) + " ," +
+            (height  - 40) + ")")
+        .style("text-anchor", "middle")
+        .text("Note to User: Lower The Ranking Number The Better!" );
 
     var legend = d3.legendColor()
     .shape("rect")

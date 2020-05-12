@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <title>Displaying Security Advice</title>
   <link rel="stylesheet" type="text/css" href="static/css/security.css">
@@ -11,17 +10,18 @@
 </head>
 <body>
   <br>
+    <h1 id="title">Security Advice ecosystem</h1>
     <br>
-    <button type="button" id="homeButton">Home</button>
   <div class="container" style="display: flex">
     <br>
-    <div style="width: 90%">
+    <div id="graph-div" style="width: 90%">
       <svg id="vis" width="1000" height="600"></svg>
     </div>
-    <div style="flex-grow: 1">
+    <div id="sidetext-div"style="flex-grow: 1">
       <text id="textField"></text>
     </div>
   </div>
+  <button type="button" id="homeButton">Return home</button>
   <hr>
   <div class="grid-container" id="ui-div"> 
     <div class="grid-item" id="rankType-select"> 
@@ -31,11 +31,17 @@
         <option value="User Ranking" selected="selected">User Ranking</option>
       </select>
     </div>
-    <div class="grid-item" id="rankView">
-      <!--
-      <label for="rankRange"> Select Rankings Range:</label>
-      1 <input type="range" id="rankRange" name="quantity" min="1" max="59" value="59"> <text id ="sliderMax">59</text>
-     -->
+    <div class="grid-item" id="rankView"> 
+      <!-- <label for="rankRange"> Select Rankings Range:</label>
+      1 <input type="range" id="rankRange" name="quantity" min="1" max="59" value="59"> <text id ="sliderMax">59</text> -->
+      <label for="fname">Please select any range between 0 and 8:</label><br>
+      <label for="fname">Min Ranking:</label>
+      <input type="number" id="minRank" name="min">
+      <label for="lname">Max Ranking:</label>
+      <input type="number" id="maxRank" name="lname">
+      <button type="button" id="rankBtn">Submit</button>
+
+  
     </div>
     <div class="grid-item" id="sortDiv">
       Toggle Sort <input type="checkbox" id="sort"> 
