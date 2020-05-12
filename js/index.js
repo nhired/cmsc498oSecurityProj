@@ -46,8 +46,8 @@ window.onload = () => {
 homeButton.onclick = () => { 
     renderCardinalityVisualization(data);
     document.getElementById("ui-div").style.visibility = "hidden";
-    d3.select(".legendLinear").attr("visibility", "visible");
-    d3.select(".legendLinear2").attr("visibility", "visible");
+    //d3.select(".legendLinear").attr("visibility", "visible");
+    //d3.select(".legendLinear2").attr("visibility", "visible");
     document.getElementById("homeButton").style.visibility = "hidden";
 }
 
@@ -68,7 +68,8 @@ submitRankBtn.onclick = () => {
     rankingArr.forEach(function(d){
         json[d[0]] = d[1];
     });
-    renderVisualization(json, selectedRankType, sliderValue, sorted);
+    renderVisualization(json, selectedRankType, sorted);
+    renderBothVisualization(json, "Expert Ranking", "User Ranking", sorted);
 }
 
 
@@ -76,9 +77,9 @@ submitRankBtn.onclick = () => {
 rankTypeDropdown.onchange = () => {
     selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
     if (selectedRankType === "Both") {
-        renderBothVisualization(data[selectedCategory], "Expert Ranking", "User Ranking", sliderValue, sorted, selectedCategory);
+        renderBothVisualization(data[selectedCategory], "Expert Ranking", "User Ranking",  sorted, selectedCategory);
     } else {
-        renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted, selectedCategory);
+        renderVisualization(data[selectedCategory], selectedRankType, sorted, selectedCategory);
     }
 };
 
@@ -86,9 +87,9 @@ rankTypeDropdown.onchange = () => {
 sortCheckbox.onchange = () => {
     sorted = sortCheckbox.checked;
     if (selectedRankType === "Both") {
-        renderBothVisualization(data[selectedCategory], "Expert Ranking", "User Ranking", sliderValue, sorted, selectedCategory);
+        renderBothVisualization(data[selectedCategory], "Expert Ranking", "User Ranking", sorted, selectedCategory);
     } else {
-        renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted, selectedCategory);
+        renderVisualization(data[selectedCategory], selectedRankType, sorted, selectedCategory);
     }
 }
 
@@ -113,11 +114,16 @@ function renderCardinalityVisualization(jsonData) {
     svg.append("g")
         .attr("id", "xAxis")
         .attr("transform", `translate(0, ${svg.attr("height") - 100 - margins.bottom})`)
-
-
         .call(d3.axisBottom(xScale))
-        .selectAll("text")
-        .remove();
+    svg.append("g")
+        .attr("class", "xAxisText")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", function (d) {
+            return "rotate(-45)"
+        });
+
     svg.append("g")
         .attr("id", "yAxis")
         .attr( "stroke-width", '3px')
@@ -164,9 +170,10 @@ function renderCardinalityVisualization(jsonData) {
         .attr("id", "categoryText")
         .attr("transform",
             "translate(" + (width/2) + " ," +
-            (height - margins.bottom - 70) + ")")
+            (height - margins.bottom - 40) + ")")
         .style("text-anchor", "middle")
         .text("Categories of Security Advice");
+
 
     svg.append("text")
         .attr("id", "recordsText")
@@ -185,7 +192,7 @@ function renderCardinalityVisualization(jsonData) {
     let colorScale2 = d3.scaleOrdinal().domain(cat2)
     .range([ "#FFCB77", "#FFE2B3", "#FFCBB2", "#FEB3B1", "#FE6D73", "#712F79"]);
 
-        /** ADDED LEGEND FOR BAR CHART */
+        /** ADDED LEGEND FOR BAR CHART 
         var legend = d3.legendColor()
         .shape("rect")
         .shapeWidth(height / 6)
@@ -208,10 +215,10 @@ function renderCardinalityVisualization(jsonData) {
         .append("g")
         .attr("class", "legendLinear2")
         .attr("transform", `translate(100, 550)`)
-        .call(legend2);
+        .call(legend2);*/
 }
 
-function renderVisualization(jsonData, rankType, rankRange, sorted, selectedCategory) {
+function renderVisualization(jsonData, rankType, sorted, selectedCategory) {
     document.getElementById("homeButton").style.visibility = "visible";
     d3.select(".legendLinear").attr("visibility", "hidden");
     d3.select(".legendLinear2").attr("visibility", "hidden");
@@ -341,7 +348,7 @@ function renderVisualization(jsonData, rankType, rankRange, sorted, selectedCate
         .text("Note to User: Lower The Ranking Number The Better!" );
  }
 
-function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sorted, selectedCategory) {
+function renderBothVisualization(jsonData, expertRank, userRank, sorted, selectedCategory) {
     document.getElementById("homeButton").style.visibility = "visible";
     /** FOR ALL VISUALIZATION STUFF */
     svg.selectAll("*").remove();
