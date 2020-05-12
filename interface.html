@@ -26,7 +26,8 @@
   <div class="grid-container" id="ui-div"> 
     <div class="grid-item" id="rankType-select"> 
       Select Rankings Type:<select id="rankType">
-        <option value="Both">Both</option>
+        <option value="Both">Both - Stacked</option>
+        <option value="Scatter">Both - Scatter</option>
         <option value="Expert Ranking">Expert Ranking</option>
         <option value="User Ranking" selected="selected">User Ranking</option>
       </select>
@@ -34,14 +35,14 @@
     <div class="grid-item" id="rankView"> 
       <!-- <label for="rankRange"> Select Rankings Range:</label>
       1 <input type="range" id="rankRange" name="quantity" min="1" max="59" value="59"> <text id ="sliderMax">59</text> -->
-      <label for="fname">Please select any range between 0 and 8:</label><br>
-      <label for="fname">Min Ranking:</label>
-      <input type="number" id="minRank" name="min">
-      <label for="lname">Max Ranking:</label>
-      <input type="number" id="maxRank" name="lname">
-      <button type="button" id="rankBtn">Submit</button>
-
-  
+      <div id="rankingDiv">
+        <label for="fname">Please select any range between 0 and 8:</label><br>
+        <label for="fname">Min Ranking:</label>
+        <input type="number" id="minRank" name="min">
+        <label for="lname">Max Ranking:</label>
+        <input type="number" id="maxRank" name="lname">
+        <button type="button" id="rankBtn">Submit</button>
+      </div>
     </div>
     <div class="grid-item" id="sortDiv">
       Toggle Sort <input type="checkbox" id="sort"> 

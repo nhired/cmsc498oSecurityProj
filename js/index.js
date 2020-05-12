@@ -77,7 +77,9 @@ submitRankBtn.onclick = () => {
 rankTypeDropdown.onchange = () => {
     selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
     if (selectedRankType === "Both") {
-        renderBothVisualization(data[selectedCategory], "Expert Ranking", "User Ranking",  sorted, selectedCategory);
+        renderBothVisualization(data[selectedCategory], "Expert Ranking", "User Ranking", sliderValue, sorted, selectedCategory);
+    } else if (selectedRankType === "Scatter") {
+        renderScatter(data[selectedCategory], selectedCategory)
     } else {
         renderVisualization(data[selectedCategory], selectedRankType, sorted, selectedCategory);
     }
@@ -126,7 +128,6 @@ function renderCardinalityVisualization(jsonData) {
 
     svg.append("g")
         .attr("id", "yAxis")
-        .attr( "stroke-width", '3px')
         .attr("transform", `translate(${margins.left}, 0)`)
         .call(d3.axisLeft(yScale));
     
@@ -173,8 +174,6 @@ function renderCardinalityVisualization(jsonData) {
             (height - margins.bottom - 40) + ")")
         .style("text-anchor", "middle")
         .text("Categories of Security Advice");
-
-
     svg.append("text")
         .attr("id", "recordsText")
         .attr("transform", "rotate(-90)")
@@ -222,6 +221,9 @@ function renderVisualization(jsonData, rankType, sorted, selectedCategory) {
     document.getElementById("homeButton").style.visibility = "visible";
     d3.select(".legendLinear").attr("visibility", "hidden");
     d3.select(".legendLinear2").attr("visibility", "hidden");
+
+    document.getElementById("sortDiv").style.display = "block";
+    document.getElementById("rankingDiv").style.display = "block";
     /** FOR ALL VISUALIZATION STUFF */
     svg.selectAll("*").remove();
 
@@ -257,12 +259,10 @@ function renderVisualization(jsonData, rankType, sorted, selectedCategory) {
         .attr("id", "xAxis")
         .attr("transform", `translate(0, ${svg.attr("height") - 50 - margins.bottom})`)
         .call(d3.axisBottom(xScale))
-        .attr( "stroke-width", '3px')
         .selectAll("text")
         .remove();
     svg.append("g")
         .attr("id", "yAxis")
-        .attr( "stroke-width", '3px')
         .attr("transform", `translate(${margins.left}, 0)`)
         .call(d3.axisLeft(yScale));
 
@@ -350,6 +350,8 @@ function renderVisualization(jsonData, rankType, sorted, selectedCategory) {
 
 function renderBothVisualization(jsonData, expertRank, userRank, sorted, selectedCategory) {
     document.getElementById("homeButton").style.visibility = "visible";
+    document.getElementById("sortDiv").style.display = "block";
+    document.getElementById("rankingDiv").style.display = "block";
     /** FOR ALL VISUALIZATION STUFF */
     svg.selectAll("*").remove();
 
@@ -365,10 +367,10 @@ function renderBothVisualization(jsonData, expertRank, userRank, sorted, selecte
     })
 
     let advice = dataArray.map((entry) => entry[0]);
-    let urankings = dataArray.map((entry) => entry[1][userRank]);
-    let erankings =  dataArray.map((entry) => entry[1][expertRank]);
-    let maxRank = [d3.max(urankings), d3.max(erankings)];
-    let minRank = [d3.min(urankings), d3.min(erankings)];
+    let userRankings = dataArray.map((entry) => entry[1][userRank]);
+    let expertRankings =  dataArray.map((entry) => entry[1][expertRank]);
+    let maxRank = [d3.max(userRankings), d3.max(expertRankings)];
+    let minRank = [d3.min(userRankings), d3.min(expertRankings)];
 
 
     if (sorted) {
@@ -497,4 +499,97 @@ function renderBothVisualization(jsonData, expertRank, userRank, sorted, selecte
     .attr("class", "legendRank")
     .attr("transform", `translate(375, 500)`)
     .call(legend);
+}
+
+function renderScatter(jsonData, category) {
+    document.getElementById("homeButton").style.visibility = "visible";
+    document.getElementById("sortDiv").style.display = "none";
+    document.getElementById("rankingDiv").style.display = "none";
+
+    /** FOR ALL VISUALIZATION STUFF */
+    svg.selectAll("*").remove();
+
+    let dataArray = Object.entries(jsonData);
+    let userRankings = dataArray.map((entry) => entry[1]["User Ranking"]);
+    let expertRankings =  dataArray.map((entry) => entry[1]["Expert Ranking"]);
+
+    // Set scales
+    let xScale = d3.scaleLinear()
+        .domain([d3.min(userRankings), d3.max(userRankings)]).nice()
+        .range([margins.left, width - margins.right]);
+    let yScale = d3.scaleLinear()
+        .domain([d3.min(expertRankings), d3.max(expertRankings)]).nice()
+        .range([height - 100 - margins.bottom, margins.top]);
+
+    // Plot axes
+    svg.append("g")
+        .attr("id", "xAxis")
+        .attr("transform", `translate(0, ${svg.attr("height") - 100 - margins.bottom})`)
+        .call(d3.axisBottom(xScale))
+    svg.append("g")
+        .attr("id", "yAxis")
+        .attr("transform", `translate(${margins.left}, 0)`)
+        .call(d3.axisLeft(yScale));
+
+    // Create axis labels
+    svg.append("text")
+        .attr("id", "categoryText")
+        .attr("transform",
+            "translate(" + (width/2) + " ," +
+            (height - margins.bottom - 40) + ")")
+        .style("text-anchor", "middle")
+        .text(`User Advice Ranking - ${category}`);
+    svg.append("text")
+        .attr("id", "recordsText")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 35) //variables inverted due to rotation
+        .attr("x",-(height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text(`Expert Advice Ranking - ${category}`);
+
+    let tip = d3.tip()
+        .attr('class', 'inner-tip')
+        .offset([-10, 0])
+        .html((data) => data[0] + "<br>" +
+            "Ranking: <span class='tooltip'>" + (data[1][rankType]) + "</span><br>");
+
+    svg.call(tip);
+
+    // Plot points
+    svg.selectAll("circle")
+        .data(dataArray)
+        .enter()
+        .append("circle")
+        .attr("r", 4)
+        .attr("cx", entry => xScale(entry[1]["User Ranking"]))
+        .attr("cy", entry => yScale(entry[1]["Expert Ranking"]))
+        .on('mouseover', tip.show)
+        .on('mouseover', data => {
+            document.getElementById("sidetext-div").style.visibility = "visible";
+            let confidence = data[1]["Actionability"][0].split(':')
+            let time = data[1]["Actionability"][1].split(':')
+            let disruptive = data[1]["Actionability"][2].split(':')
+            let difficulty = data[1]["Actionability"][3].split(':')
+            let accuracy = data[1]["Accuracy"][0].split(':')
+            let advice = data[0].toUpperCase();
+
+            textField.innerHTML = `<b>${advice}</b><br><br>
+                <b>User Ranking: </b>${data[1]["User Ranking"]}<br>
+                <b>Expert Ranking: </b>${data[1]["Expert Ranking"]}<br>
+                <b> Example: </b>${data[1]["Examples"][0]}<br>
+                <b>${accuracy[0]}: </b>${accuracy[1]}<br>
+                <b>${confidence[0]}: </b>${confidence[1]}<br>
+                <b>${time[0]}: </b>${time[1]}<br>
+                <b>${disruptive[0]}: </b>${disruptive[1]}<br>
+                <b>${difficulty[0]}: </b>${difficulty[1]}<br>`
+            ;
+            d3.event.stopPropagation();
+        })
+        .on('mouseout', () => {
+            document.getElementById("sidetext-div").style.visibility = "hidden";
+            tip.hide
+            textField.innerHTML = ""
+            d3.event.stopPropagation();
+        });
 }
