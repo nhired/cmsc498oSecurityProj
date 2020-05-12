@@ -29,32 +29,12 @@ let data, selectedCategory, selectedRankType, sliderValue, sorted;
 
 window.onload = () => {
     data = processedJson;
-    //console.log(data);
-    //console.log(rankingValues.get("Account Security"))
-    //selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
     selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
-    //sliderValue = slider.value;
     sorted = sortCheckbox.checked;
-    //calculateAvg(data, "Account Security", "Expert Ranking");
     renderCardinalityVisualization(data);
     document.getElementById("ui-div").style.visibility = "hidden";
     d3.select(".legendLinear").attr("visibility", "visible");
     d3.select(".legendLinear2").attr("visibility", "visible");
-}
-
-function calculateAvg(jsonData, category, rankType) {
-    let sum = 0;
-    let emptyCount = 0;
-    let dataArray = jsonData[category];
-    let array = Object.entries(dataArray);
-    for (let i = 0; i < array.length; i++) {
-        if (array[i][1][rankType] !== "") {
-            sum += parseInt(array[i][1][rankType]);
-        } else {
-            emptyCount++
-        }
-    }
-    console.log("AVG: " + sum/(array.length - emptyCount))
 }
 
 homeButton.onclick = () => { 
@@ -64,17 +44,6 @@ homeButton.onclick = () => {
     d3.select(".legendLinear2").attr("visibility", "visible");
 }
 
-/*
-categoryDropdown.onchange = () => {
-    selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
-    sliderMax.innerHTML = Object.entries(data[selectedCategory]).length;
-    slider.max = Object.entries(data[selectedCategory]).length;
-    slider.value = Object.entries(data[selectedCategory]).length;
-    sliderValue = slider.value;
-    renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
-};
-*/
-
 rankTypeDropdown.onchange = () => {
     selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
     if (selectedRankType === "Both") {
@@ -83,17 +52,13 @@ rankTypeDropdown.onchange = () => {
         renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted, selectedCategory);
     }
 };
-
-/*
-slider.oninput = () => {
-    sliderValue = slider.value;
-    renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
-}
-*/
-
 sortCheckbox.onchange = () => {
     sorted = sortCheckbox.checked;
-    renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted, selectedCategory);
+    if (selectedRankType === "Both") {
+        renderBothVisualization(data[selectedCategory], "Expert Ranking", "User Ranking", sliderValue, sorted, selectedCategory);
+    } else {
+        renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted, selectedCategory);
+    }
 }
 
 function renderCardinalityVisualization(jsonData) {
@@ -144,7 +109,6 @@ function renderCardinalityVisualization(jsonData) {
         .append("rect")
         .on("click", entry => {
             selectedCategory = entry[0];
-            console.log(selectedCategory)
             d3.selectAll(".d3-tip.n").remove();
             renderVisualization(jsonData[entry[0]], selectedRankType, sliderValue, sorted);
             document.getElementById("ui-div").style.visibility = "visible";
@@ -382,21 +346,13 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
     svg.call(tip);
 
     let data = dataArray.map(d => {
-        //console.log(d)
-        console.log(d[1][expertRank])
         d[1][expertRank] = parseFloat(d[1][expertRank]);
         d[1][userRank] = parseFloat(d[1][userRank]);
-        //console.log(typeof d[1][expertRank]);
-        //console.log(typeof d[1][userRank]);
         return d
 
     })
 
-    console.log(data)
-
     var rankStat = d3.stack().keys(rankTypes)(data.map(d => d[1]));
-
-    console.log(rankStat)
 
     var colors = d3.scaleOrdinal()
         .range(["#FE9092", "#208EA3"])
@@ -420,28 +376,15 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
     let minY = d3.min(minRank) - minBuffer;
     bars.enter().append("rect")
         .merge(bars)
-        .attr("x", entry => {
-            console.log(entry);
-            return xScale(entry["data"][0]);
-        })
-        .attr("y", entry => {
-            // add the height whichever bar is below
-            //console.log(typeof entry[1])
-            return yScale(entry[1]);
-        })
+        .attr("x", entry => xScale(entry["data"]["name"]))
+        .attr("y", entry => yScale(entry[1]))
         .attr("width", xScale.bandwidth())
-        .attr("height",entry => {
-            console.log(entry[1])
-            console.log(entry[0])
-            return yScale(entry[0]) - yScale(entry[1]);
-            //var number = parseFloat(entry["data"][1][userRank]);
-            //console.log(number)
-        })
+        .attr("height",entry => yScale(entry[0]) - yScale(entry[1]))
         .on('mouseover', tip.show)
         .on('mouseover', data => {
-            textField.innerHTML = "<b>Advice: </b>" + data["data"][0] + "<br>" + 
-                "<b>" + expertRank + ": </b>" + (data["data"][0][expertRank]) + "<br>" + 
-                "<b>" + userRank + ": </b>" + (data["data"][0][userRank]);
+            textField.innerHTML = "<b>Advice: </b>" + data["data"]["name"] + "<br>" +
+                "<b>" + expertRank + ": </b>" + (data["data"][expertRank]) + "<br>" +
+                "<b>" + userRank + ": </b>" + (data["data"][userRank]);
             d3.event.stopPropagation();
         })
         .on('mouseout', () => {
