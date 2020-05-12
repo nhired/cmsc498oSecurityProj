@@ -78,9 +78,9 @@ categoryDropdown.onchange = () => {
 rankTypeDropdown.onchange = () => {
     selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
     if (selectedRankType === "Both") {
-        renderBothVisualization(data[selectedCategory], "Expert Ranking", "User Ranking", sliderValue, sorted);
+        renderBothVisualization(data[selectedCategory], "Expert Ranking", "User Ranking", sliderValue, sorted, selectedCategory);
     } else {
-        renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
+        renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted, selectedCategory);
     }
 };
 
@@ -93,7 +93,7 @@ slider.oninput = () => {
 
 sortCheckbox.onchange = () => {
     sorted = sortCheckbox.checked;
-    renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted);
+    renderVisualization(data[selectedCategory], selectedRankType, sliderValue, sorted, selectedCategory);
 }
 
 function renderCardinalityVisualization(jsonData) {
@@ -144,6 +144,7 @@ function renderCardinalityVisualization(jsonData) {
         .append("rect")
         .on("click", entry => {
             selectedCategory = entry[0];
+            console.log(selectedCategory)
             d3.selectAll(".d3-tip.n").remove();
             renderVisualization(jsonData[entry[0]], selectedRankType, sliderValue, sorted);
             document.getElementById("ui-div").style.visibility = "visible";
@@ -166,14 +167,14 @@ function renderCardinalityVisualization(jsonData) {
             "translate(" + (width/2) + " ," +
             (height - margins.bottom - 70) + ")")
         .style("text-anchor", "middle")
-        .text("Category");
+        .text("Categories of Security Advice");
     svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 35) //variables inverted due to rotation
         .attr("x",0 - (height / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .text("Quantity");
+        .text("Number of Advice in Each Category");
 
     let cat1 = ["Account Security", "Antivirus", "Browsers", "Data Storage", "Device Security", "Finance"];
     let cat2 = ["General Security", "Incident Response", "Network Security", "Passwords", "Privacy", "Software"];
@@ -182,8 +183,9 @@ function renderCardinalityVisualization(jsonData) {
 
     let colorScale2 = d3.scaleOrdinal().domain(cat2)
     .range([ "#FFCB77", "#FFE2B3", "#FFCBB2", "#FEB3B1", "#FE6D73", "#712F79"]);
-     /** ADDED LEGEND FOR BAR CHART */
-    var legend = d3.legendColor()
+     
+    /** ADDED LEGEND FOR BAR CHART */
+     var legend = d3.legendColor()
     .shape("rect")
     .shapeWidth(height / 6)
     .shapePadding(30)
@@ -210,7 +212,7 @@ d3.select("#vis")
 
 }
 
-function renderVisualization(jsonData, rankType, rankRange, sorted) {
+function renderVisualization(jsonData, rankType, rankRange, sorted, selectedCategory) {
     d3.select(".legendLinear").attr("visibility", "hidden");
     d3.select(".legendLinear2").attr("visibility", "hidden");
     /** FOR ALL VISUALIZATION STUFF */
@@ -300,19 +302,19 @@ function renderVisualization(jsonData, rankType, rankRange, sorted) {
     svg.append("text")
         .attr("transform",
             "translate(" + (width/2) + " ," +
-            (height - margins.bottom - 40) + ")")
+            (height - margins.bottom - 20) + ")")
         .style("text-anchor", "middle")
-        .text("Advice");
+        .text("Advice for " + selectedCategory);
     svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 35) //variables inverted due to rotation
         .attr("x",0 - (height / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .text("Quality of Advice");
+        .text(rankType + " Advice Rankings");
  }
 
-function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sorted) {
+function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sorted, selectedCategory) {
     /** FOR ALL VISUALIZATION STUFF */
     svg.selectAll("*").remove();
 
@@ -324,6 +326,7 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
     
     dataArray.forEach(function (d) {
         d.total = d3.sum(rankTypes, k => +d[1][k])
+        console.log(d.total)
         return d
     })
 
@@ -387,37 +390,6 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
         .range(["#FE9092", "#208EA3"])
         .domain(rankTypes);
 
-    /*
-    var rects = d3.select("#vis").append("g")
-      .attr("transform", "translate("+margins.left+","+margins.top+")")
-      .selectAll("g").data(rankStat).enter()
-        .append("g")
-        .attr("fill", d => colors(d.key));
-
-
-    let minY = d3.min(minRank) - minBuffer;
-    rects.selectAll("rect")
-        .data(d => d)
-        .join("rect")
-        .attr("x", (d, i) => xScale(d.data[0]))
-        .attr("y", d=> yScale(d.data.total))
-        .attr("height", d=> {
-            let number = d.data[1];
-            return yScale(minY) - yScale(number);
-        })
-        .attr("width", xScale.bandwidth())
-        .on('mouseover', tip.show)
-        .on('mouseover', data => {
-            textField.innerHTML = "<b>Advice: </b>" + data["data"][0] + "<br>" + 
-                "<b>" + expertRank + ": </b>" + (data["data"][1][expertRank]) + "<br>" + 
-                "<b>" + userRank + ": </b>" + (data["data"][1][userRank]);
-            d3.event.stopPropagation();
-        })
-        .on('mouseout', () => {
-            tip.hide
-            textField.innerHTML = ""
-            d3.event.stopPropagation();
-        });*/
     var group = d3.select("#vis").selectAll("g.layer")
     .data(rankStat, d => d.key);
 
@@ -428,7 +400,7 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
             .attr("fill", d => colors(d.key));
 
     var bars = d3.select("#vis").selectAll("g.layer").selectAll("rect")
-        .data(d => d, e => e.data.key);
+        .data(d => d, e => e.data[0]);
 
     bars.exit().remove()
 
@@ -438,19 +410,28 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
         .merge(bars)
         .attr("x", entry => xScale(entry["data"][0]))
         .attr("y", entry => {
-            return yScale(entry["data"].total) }
+            // add the height whichever bar is below
+            return yScale(entry["data"][1]); /*}
+            {
+                // user ranking is below expert ranking
+                data is userRanking or expertranking
+                if user rankingValues,
+                    return yScale(entry[data][1]);
+                else
+                    return yScale(entry[data][1]) + getHeight of bar */
+            }
         )
         .attr("width", xScale.bandwidth())
         .attr("height",entry => {
             /** THIS SECTION HAS ISSUE */
-            var number = entry["data"][1];
-            console.log(number)
+            var number = parseFloat(entry["data"][1][userRank]);
+            //console.log(number)
             
-            /** for (i=0; i < rankTypes.length; i++) {
-             *  var number = entry["data"][1][i];
-             * return yScale(entry[0]) - yScale(number);
-             * } */
-
+            /*for (i=0; i < rankTypes.length; i++) {
+                var number = entry["data"][1][rankTypes[i]];
+                return yScale(entry[0]) - yScale(number);
+            } */
+            //console.log(yScale(entry[0]) - yScale(number)) 
             return yScale(entry[0]) - yScale(number);
         
             //console.log(number)
@@ -474,14 +455,14 @@ function renderBothVisualization(jsonData, expertRank, userRank, rankRange, sort
             "translate(" + (width/2) + " ," +
             (height - margins.bottom - 70) + ")")
         .style("text-anchor", "middle")
-        .text("Advice");
+        .text("Advice for " + selectedCategory);
     svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 35) //variables inverted due to rotation
         .attr("x",0 - (height / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .text("Quality of Advice");
+        .text("Advice Rankings");
 
     var legend = d3.legendColor()
     .shape("rect")
