@@ -77,7 +77,7 @@ h1 {
     font-size: 20px;
 }
 
- #rankType-select, #rankView, #sortDiv {
+ #rankType-select, #rankView, #bothView, #sortDiv {
     fill: #505050;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-size: 17px;

@@ -26,11 +26,21 @@
   <div class="grid-container" id="ui-div"> 
     <div class="grid-item" id="rankType-select"> 
       Select Rankings Type:<select id="rankType">
-        <option value="Both">Both - Stacked</option>
-        <option value="Scatter">Both - Scatter</option>
+        <option value="Both">Both</option>
         <option value="Expert Ranking">Expert Ranking</option>
         <option value="User Ranking" selected="selected">User Ranking</option>
       </select>
+    </div>
+    <div class="grid-item" id="bothView">
+      <br>
+      <label for="fname">Please select either scatter plot or stacked view: </label><br>
+      <input type="radio" id="stacked" name="both" value="stacked">
+      <label for="stacked">Stacked Bar Chart</label>
+      <input type="radio" id="scatter" name="both" value="scatter">
+      <label for="scatter">Scatter Plot</label>
+      <button type="button" id="bothBtn">Change View</button>
+      <br>
+      <br>
     </div>
     <div class="grid-item" id="rankView"> 
       <!-- <label for="rankRange"> Select Rankings Range:</label>

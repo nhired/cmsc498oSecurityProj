@@ -4,6 +4,7 @@ const textField = document.getElementById("textField");
 const homeButton = document.getElementById("homeButton");
 //const categoryDropdown = document.getElementById("category");
 const rankTypeDropdown = document.getElementById("rankType");
+const submitBothBtn = document.getElementById("bothBtn");
 const slider = document.getElementById("rankRange");
 const submitRankBtn = document.getElementById("rankBtn");
 const sortCheckbox = document.getElementById("sort");
@@ -37,9 +38,7 @@ window.onload = () => {
     sorted = sortCheckbox.checked;
     renderCardinalityVisualization(data);
     document.getElementById("ui-div").style.visibility = "hidden";
-    
-    d3.select(".legendLinear").attr("visibility", "visible");
-    d3.select(".legendLinear2").attr("visibility", "visible");
+
    // alert("Note to User: The lower the ranking Number the Better!")
 }
 
@@ -49,7 +48,9 @@ homeButton.onclick = () => {
     //d3.select(".legendLinear").attr("visibility", "visible");
     //d3.select(".legendLinear2").attr("visibility", "visible");
     document.getElementById("homeButton").style.visibility = "hidden";
+    document.getElementById("bothView").style.visibility = "hidden";
 }
+
 
 submitRankBtn.onclick = () => { 
     const minRank = document.getElementById("minRank").value;
@@ -69,21 +70,30 @@ submitRankBtn.onclick = () => {
         json[d[0]] = d[1];
     });
     renderVisualization(json, selectedRankType, sorted);
-    renderBothVisualization(json, "Expert Ranking", "User Ranking", sorted);
+    renderBothVisualization(json, "Expert Ranking", "User Ranking", sorted, selectedCategory);
 }
-
 
 
 rankTypeDropdown.onchange = () => {
     selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
     if (selectedRankType === "Both") {
-        renderBothVisualization(data[selectedCategory], "Expert Ranking", "User Ranking", sliderValue, sorted, selectedCategory);
-    } else if (selectedRankType === "Scatter") {
-        renderScatter(data[selectedCategory], selectedCategory)
+        renderBothVisualization(data[selectedCategory], "Expert Ranking", "User Ranking", sorted, selectedCategory);
+        document.getElementById("bothView").style.visibility = "visible";
     } else {
         renderVisualization(data[selectedCategory], selectedRankType, sorted, selectedCategory);
     }
 };
+
+submitBothBtn.onclick = () => {
+    if (selectedRankType === "Both") { 
+        if (document.getElementById("scatter").checked) {
+            renderScatter(data[selectedCategory], selectedCategory)
+        } else {
+            renderBothVisualization(data[selectedCategory], "Expert Ranking", "User Ranking", sorted, selectedCategory);
+        }
+    }
+
+}
 
 
 sortCheckbox.onchange = () => {
@@ -116,8 +126,9 @@ function renderCardinalityVisualization(jsonData) {
     svg.append("g")
         .attr("id", "xAxis")
         .attr("transform", `translate(0, ${svg.attr("height") - 100 - margins.bottom})`)
-        .call(d3.axisBottom(xScale))
-    svg.append("g")
+        .call(d3.axisBottom(xScale));
+
+    svg.selectAll("#xAxis").selectAll("text")
         .attr("class", "xAxisText")
         .style("text-anchor", "end")
         .attr("dx", "-.8em")
@@ -130,6 +141,7 @@ function renderCardinalityVisualization(jsonData) {
         .attr("id", "yAxis")
         .attr("transform", `translate(${margins.left}, 0)`)
         .call(d3.axisLeft(yScale));
+
     
     // Tooltips
     let tip = d3.tip()
@@ -151,7 +163,7 @@ function renderCardinalityVisualization(jsonData) {
         .on("click", entry => {
             selectedCategory = entry[0];
             d3.selectAll(".d3-tip.n").remove();
-            renderVisualization(jsonData[entry[0]], selectedRankType, sliderValue, sorted);
+            renderVisualization(jsonData[entry[0]], selectedRankType, sorted, entry[0]);
             document.getElementById("ui-div").style.visibility = "visible";
             d3.event.stopPropagation();
         })
@@ -171,7 +183,7 @@ function renderCardinalityVisualization(jsonData) {
         .attr("id", "categoryText")
         .attr("transform",
             "translate(" + (width/2) + " ," +
-            (height - margins.bottom - 40) + ")")
+            (height - margins.bottom - 15) + ")")
         .style("text-anchor", "middle")
         .text("Categories of Security Advice");
     svg.append("text")
@@ -183,45 +195,12 @@ function renderCardinalityVisualization(jsonData) {
         .style("text-anchor", "middle")
         .text("Number of Advice in Each Category");
 
-    let cat1 = ["Account Security", "Antivirus", "Browsers", "Data Storage", "Device Security", "Finance"];
-    let cat2 = ["General Security", "Incident Response", "Network Security", "Passwords", "Privacy", "Software"];
-    let colorScale1 = d3.scaleOrdinal().domain(cat1)
-        .range(["#4E4D5C", "#227C9D", "#1DA0A8", "#17C3B2", "#8BC795", "#C5C986"]);
-
-    let colorScale2 = d3.scaleOrdinal().domain(cat2)
-    .range([ "#FFCB77", "#FFE2B3", "#FFCBB2", "#FEB3B1", "#FE6D73", "#712F79"]);
-
-        /** ADDED LEGEND FOR BAR CHART 
-        var legend = d3.legendColor()
-        .shape("rect")
-        .shapeWidth(height / 6)
-        .shapePadding(30)
-        .orient('horizontal')
-        .scale(colorScale1);
-        d3.select("#vis")
-        .append("g")
-        .attr("class", "legendLinear")
-        .attr("transform", `translate(100, 500)`)
-        .call(legend);
-    
-        var legend2 = d3.legendColor()
-        .shape("rect")
-        .shapeWidth(height / 6)
-        .shapePadding(30)
-        .orient('horizontal')
-        .scale(colorScale2);
-    d3.select("#vis")
-        .append("g")
-        .attr("class", "legendLinear2")
-        .attr("transform", `translate(100, 550)`)
-        .call(legend2);*/
 }
 
 function renderVisualization(jsonData, rankType, sorted, selectedCategory) {
     document.getElementById("homeButton").style.visibility = "visible";
-    d3.select(".legendLinear").attr("visibility", "hidden");
-    d3.select(".legendLinear2").attr("visibility", "hidden");
 
+    document.getElementById("bothView").style.visibility = "hidden";
     document.getElementById("sortDiv").style.display = "block";
     document.getElementById("rankingDiv").style.display = "block";
     /** FOR ALL VISUALIZATION STUFF */
@@ -350,6 +329,7 @@ function renderVisualization(jsonData, rankType, sorted, selectedCategory) {
 
 function renderBothVisualization(jsonData, expertRank, userRank, sorted, selectedCategory) {
     document.getElementById("homeButton").style.visibility = "visible";
+    document.getElementById("bothView").style.visibility = "visible";
     document.getElementById("sortDiv").style.display = "block";
     document.getElementById("rankingDiv").style.display = "block";
     /** FOR ALL VISUALIZATION STUFF */
@@ -467,12 +447,14 @@ function renderBothVisualization(jsonData, expertRank, userRank, sorted, selecte
         });
 
     svg.append("text")
+        .attr("id", "adviceTxt")
         .attr("transform",
             "translate(" + (width/2) + " ," +
             (height - margins.bottom - 70) + ")")
         .style("text-anchor", "middle")
         .text("Advice for " + selectedCategory);
     svg.append("text")
+        .attr("id", "qualityTxt")
         .attr("transform", "rotate(-90)")
         .attr("y", 35) //variables inverted due to rotation
         .attr("x",0 - (height / 2))
@@ -503,6 +485,7 @@ function renderBothVisualization(jsonData, expertRank, userRank, sorted, selecte
 
 function renderScatter(jsonData, category) {
     document.getElementById("homeButton").style.visibility = "visible";
+    document.getElementById("bothView").style.visibility = "visible";
     document.getElementById("sortDiv").style.display = "none";
     document.getElementById("rankingDiv").style.display = "none";
 
