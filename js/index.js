@@ -77,6 +77,7 @@ submitRankBtn.onclick = () => {
 rankTypeDropdown.onchange = () => {
     selectedRankType = rankTypeDropdown.options[rankTypeDropdown.selectedIndex].value;
     if (selectedRankType === "Both") {
+        console.log("here");
         renderBothVisualization(data[selectedCategory], "Expert Ranking", "User Ranking", sorted, selectedCategory);
         document.getElementById("bothView").style.visibility = "visible";
     } else {
@@ -163,7 +164,12 @@ function renderCardinalityVisualization(jsonData) {
         .on("click", entry => {
             selectedCategory = entry[0];
             d3.selectAll(".d3-tip.n").remove();
-            renderVisualization(jsonData[entry[0]], selectedRankType, sorted, entry[0]);
+            if (selectedRankType === "Both") {
+                renderBothVisualization(jsonData[entry[0]], "Expert Ranking", "User Ranking", sorted,  entry[0]);
+            } else {
+                renderVisualization(jsonData[entry[0]], selectedRankType, sorted,  entry[0]);
+            }
+           // renderVisualization(jsonData[entry[0]], selectedRankType, sorted, entry[0]);
             document.getElementById("ui-div").style.visibility = "visible";
             d3.event.stopPropagation();
         })
@@ -436,12 +442,28 @@ function renderBothVisualization(jsonData, expertRank, userRank, sorted, selecte
         .attr("height",entry => yScale(entry[0]) - yScale(entry[1]))
         .on('mouseover', tip.show)
         .on('mouseover', data => {
-            textField.innerHTML = "<b>Advice: </b>" + data["data"]["name"] + "<br>" +
-                "<b>" + expertRank + ": </b>" + (data["data"][expertRank]) + "<br>" +
-                "<b>" + userRank + ": </b>" + (data["data"][userRank]);
+            console.log(data["data"]["Actionability"][0]);
+            document.getElementById("sidetext-div").style.visibility = "visible";
+            let confidence = data["data"]["Actionability"][0].split(':')
+            let time = data["data"]["Actionability"][1].split(':')
+            let disruptive = data["data"]["Actionability"][2].split(':')
+            let difficulty = data["data"]["Actionability"][3].split(':')
+            let accuracy = data["data"]["Accuracy"][0].split(':')
+            let advice = data["data"]["name"].toUpperCase();
+            textField.innerHTML = `<b>${advice}</b><br><br>
+                <b>User Ranking: </b>${data[1]["User Ranking"]}<br>
+                <b>Expert Ranking: </b>${data[1]["Expert Ranking"]}<br>
+                <b> Example: </b>${data["data"]["Examples"][0]}<br>
+                <b>${accuracy[0]}: </b>${accuracy[1]}<br>
+                <b>${confidence[0]}: </b>${confidence[1]}<br>
+                <b>${time[0]}: </b>${time[1]}<br>
+                <b>${disruptive[0]}: </b>${disruptive[1]}<br>
+                <b>${difficulty[0]}: </b>${difficulty[1]}<br>`
+            ;
             d3.event.stopPropagation();
         })
         .on('mouseout', () => {
+            document.getElementById("sidetext-div").style.visibility = "hidden";
             tip.hide
             textField.innerHTML = ""
             d3.event.stopPropagation();
@@ -545,7 +567,7 @@ function renderScatter(jsonData, category) {
         .data(dataArray)
         .enter()
         .append("circle")
-        .attr("r", 4)
+        .attr("r", 10)
         .attr("cx", entry => xScale(entry[1]["User Ranking"]))
         .attr("cy", entry => yScale(entry[1]["Expert Ranking"]))
         .on('mouseover', tip.show)
