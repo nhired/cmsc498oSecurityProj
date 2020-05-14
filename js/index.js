@@ -167,6 +167,7 @@ function renderCardinalityVisualization(jsonData) {
             document.getElementById("ui-div").style.visibility = "visible";
             d3.event.stopPropagation();
         })
+        .attr("class", "homeRect")
         .attr("x", entry => xScale(entry[0]))
         .attr("y", entry => yScale(Object.keys(jsonData[entry[0]]).length))
         .attr("width", xScale.bandwidth())

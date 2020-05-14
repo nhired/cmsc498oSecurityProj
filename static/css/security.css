@@ -1,6 +1,9 @@
 rect:hover {
     fill: #F6D836;
 }
+.homeRect {
+    cursor: pointer;
+}
 
 .tooltip {
     color: #F6D836;
@@ -113,7 +116,7 @@ h1 {
 }
 
 #homeButton {
-    margin-left: 1130px;
+    margin-left: 0px;
     padding: 10px 25px;
     margin-bottom: 20px;
     font-size: 24px;
